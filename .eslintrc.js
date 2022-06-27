@@ -63,6 +63,8 @@ module.exports = {
     'sort-imports': 'off',
     'import/order': 'off',
     'simple-import-sort/exports': 'error',
+    'no-restricted-exports': 'off',
+    'no-plusplus': 'off',
     'simple-import-sort/imports': [
       'error',
       {
