@@ -10,9 +10,14 @@ import { Pawn } from './figures/Pawn';
 import { Queen } from './figures/Queen';
 import { Rook } from './figures/Rook';
 import { Coords } from './figures/types/common';
+import { FigureCommon } from './figures/types/figureModel';
 
 export class BoardModel {
   cells: CellModel[][] = [];
+
+  selectedFigure: FigureCommon | null = null;
+
+  selectedFigureCoords: Coords | null = null;
 
   public setCells;
 
@@ -33,12 +38,15 @@ export class BoardModel {
         const isRemnant = !!((iteration as number + i) % 2);
         const variantType = isRemnant ? variant.primary : variant.secondary;
 
+        const x = i;
+        const y = iteration as number;
+
         row.push(new CellModel({
-          x: i,
-          y: iteration as number,
+          coords: { x, y },
           colorVariant: variantType,
           isAvailable: false,
           figure: null,
+          board: this,
         }));
       } else {
         this.cells.push(this.initBoard(i, child) as CellModel[]);
@@ -58,21 +66,21 @@ export class BoardModel {
     }
   }
 
-  private initKing() {
+  private initKings() {
     const x = 3;
 
     this.cells[this.blackY][x].figure = new King('black', this);
     this.cells[this.whiteY][x].figure = new King('white', this);
   }
 
-  private initQueen() {
+  private initQueens() {
     const x = 4;
 
     this.cells[this.blackY][x].figure = new Queen('black', this);
     this.cells[this.whiteY][x].figure = new Queen('white', this);
   }
 
-  private initBishop() {
+  private initBishops() {
     const rightX = 5;
     const leftX = 2;
 
@@ -83,7 +91,7 @@ export class BoardModel {
     this.cells[this.whiteY][rightX].figure = new Bishop('white', this);
   }
 
-  private initKnight() {
+  private initKnights() {
     const rightX = 6;
     const leftX = 1;
 
@@ -105,16 +113,30 @@ export class BoardModel {
     this.cells[this.whiteY][rightX].figure = new Rook('white', this);
   }
 
+  private clearPrevCell() {
+    const { x, y } = this.selectedFigureCoords as Coords;
+    this.cells[y][x].figure = null;
+  }
+
   private initFigures() {
     this.initPawns();
-    this.initKing();
-    this.initQueen();
-    this.initBishop();
-    this.initKnight();
+    this.initKings();
+    this.initQueens();
+    this.initBishops();
+    this.initKnights();
     this.initRooks();
   }
 
-  public reloadCells() {
+  private sidCurrentCell({ x, y }: Coords) {
+    this.cells[y][x].figure = this.selectedFigure;
+  }
+
+  private clearFigureData() {
+    this.selectedFigure = null;
+    this.selectedFigureCoords = null;
+  }
+
+  public refreshCells() {
     this.setCells([...this.cells]);
   }
 
@@ -124,11 +146,27 @@ export class BoardModel {
     this.setCells(this.cells);
   }
 
-  public setAvailableCoords(coords: Coords[]) {
-    coords.forEach(({ x, y }) => {
-      this.cells[y][x].isAvailable = true;
+  public moveFigure(coords: Coords) {
+    this.clearPrevCell();
+    this.sidCurrentCell(coords);
+    this.clearFigureData();
+    this.clearMarks();
+    this.refreshCells();
+  }
+
+  public clearMarks() {
+    this.cells.forEach((row) => {
+      row.forEach((cell) => {
+        // eslint-disable-next-line no-param-reassign
+        cell.isAvailable = false;
+      });
     });
 
-    this.reloadCells();
+    this.refreshCells();
+  }
+
+  public setFigureData(figure: FigureCommon, coords: Coords) {
+    this.selectedFigure = figure;
+    this.selectedFigureCoords = coords;
   }
 }

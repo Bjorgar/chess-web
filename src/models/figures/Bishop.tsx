@@ -9,17 +9,9 @@ export class Bishop extends Figure {
 
   board;
 
-  private minCoord = 0;
-
-  private maxCoord = 7;
-
-  private availableCoords: Coords[] = [];
-
   private xLeftCoord = 0;
 
   private xRightCoord = 0;
-
-  private yCoord = 0;
 
   private isAvailableCalculation = true;
 
@@ -40,60 +32,53 @@ export class Bishop extends Figure {
 
   private setCoords() {
     if (this.xLeftCoord > this.minCoord) {
-      this.availableCoords.push(
-        {
-          x: --this.xLeftCoord,
-          y: this.yCoord,
-        },
-      );
+      const nextCell = this.board.cells[this.yCoord][--this.xLeftCoord];
+
+      if (!nextCell.figure) {
+        nextCell.isAvailable = true;
+      } else {
+        this.xLeftCoord = this.minCoord;
+      }
     }
+
     if (this.xRightCoord < this.maxCoord) {
-      this.availableCoords.push(
-        {
-          x: ++this.xRightCoord,
-          y: this.yCoord,
-        },
-      );
+      const nextCell = this.board.cells[this.yCoord][++this.xRightCoord];
+
+      if (!nextCell.figure) {
+        nextCell.isAvailable = true;
+      } else {
+        this.xRightCoord = this.maxCoord;
+      }
     }
+
     if (
       this.xLeftCoord === this.minCoord
       && this.xRightCoord === this.maxCoord
     ) this.isAvailableCalculation = false;
   }
 
-  private resetCalculation({ x, y }: Coords) {
+  private resetValues({ x, y }: Coords) {
     this.xLeftCoord = x;
     this.xRightCoord = x;
-    this.yCoord = y;
     this.isAvailableCalculation = true;
+    this.resetYCoord(y);
   }
 
   public getAvailableCoords(coords: Coords) {
-    this.resetCalculation(coords);
+    this.resetValues(coords);
 
     while (this.yCoord > this.minCoord && this.isAvailableCalculation) {
       --this.yCoord;
       this.setCoords();
     }
 
-    this.resetCalculation(coords);
+    this.resetValues(coords);
 
     while (this.yCoord < this.maxCoord && this.isAvailableCalculation) {
       ++this.yCoord;
       this.setCoords();
     }
 
-    this.board.setAvailableCoords(this.availableCoords);
-  }
-
-  public clearMarks() {
-    this.board.cells.forEach((row) => {
-      row.forEach((cell) => {
-        // eslint-disable-next-line no-param-reassign
-        cell.isAvailable = false;
-      });
-    });
-
-    this.board.reloadCells();
+    this.board.refreshCells();
   }
 }

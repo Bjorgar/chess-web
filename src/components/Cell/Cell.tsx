@@ -11,11 +11,11 @@ interface Props {
 
 export default function Cell({
   cell: {
-    x,
-    y,
+    coords,
     figure,
     variant,
     isAvailable,
+    board,
   },
 }: Props): JSX.Element {
   const [isActive, setActive] = useState(false);
@@ -24,8 +24,12 @@ export default function Cell({
   function clickHandler() {
     setActive(true);
     if (figure) {
-      figure.clearMarks?.();
-      figure.getAvailableCoords?.({ x, y });
+      board.clearMarks();
+      board.setFigureData(figure, coords);
+      figure.getAvailableCoords?.(coords);
+    }
+    if (isAvailable) {
+      board.moveFigure(coords);
     }
   }
 

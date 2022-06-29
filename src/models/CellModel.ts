@@ -1,21 +1,21 @@
 import { v4 as uuidV4 } from 'uuid';
 
+import { BoardModel } from './BoardModel';
+import { Coords } from './figures/types/common';
 import { FigureCommon } from './figures/types/figureModel';
 
 interface CellModelConstructor {
-  x: number,
-  y: number,
+  coords: Coords;
   figure: FigureCommon | null,
   colorVariant: string,
   isAvailable: boolean,
+  board: BoardModel;
 }
 
 export class CellModel {
-  readonly x;
+  coords;
 
-  readonly y;
-
-  readonly variant;
+  board;
 
   figure;
 
@@ -23,18 +23,20 @@ export class CellModel {
 
   id;
 
+  readonly variant;
+
   constructor({
-    x,
-    y,
+    coords,
     figure,
     colorVariant,
     isAvailable,
+    board,
   }: CellModelConstructor) {
     this.variant = colorVariant;
-    this.x = x;
-    this.y = y;
+    this.coords = coords;
     this.id = uuidV4();
     this.figure = figure;
     this.isAvailable = isAvailable;
+    this.board = board;
   }
 }
