@@ -43,14 +43,11 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'import/extensions': 'off',
     'react/prop-types': 'off',
-    // 'jsx-a11y/anchor-is-valid': 'off',
-    // 'jsx-a11y/control-has-associated-label': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
     'jsx-a11y/no-noninteractive-element-interactions': 'off',
     'react/jsx-props-no-spreading': 'off',
     'react/no-unescaped-entities': 'off',
     'react/jsx-one-expression-per-line': 'off',
-    'import/no-cycle': [0, { ignoreExternal: true }],
     'import/no-unresolved': 'off',
     'import/no-named-as-default': 'off',
     'import/prefer-default-export': 'off',
@@ -75,8 +72,6 @@ module.exports = {
         groups: [
           // React related packages come first, then other external packages
           ['^react', '^@?\\w'],
-          // Our external packages
-          ['^@amomedia/'],
           // Internal packages
           [
             '^src',

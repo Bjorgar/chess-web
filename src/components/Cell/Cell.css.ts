@@ -25,6 +25,10 @@ export const border = styleVariants({
   },
 });
 
-export const figure = style({
+export const figureImg = style({
   height: '90%',
+});
+
+export const bright = style({
+  backgroundColor: 'blue',
 });

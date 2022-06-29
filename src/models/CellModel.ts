@@ -1,12 +1,13 @@
 import { v4 as uuidV4 } from 'uuid';
 
-import { Figure } from './Figure';
+import { FigureCommon } from './figures/types/figureModel';
 
 interface CellModelConstructor {
   x: number,
   y: number,
-  figure: Figure | null,
+  figure: FigureCommon | null,
   colorVariant: string,
+  isAvailable: boolean,
 }
 
 export class CellModel {
@@ -18,7 +19,7 @@ export class CellModel {
 
   figure;
 
-  available;
+  isAvailable;
 
   id;
 
@@ -27,11 +28,13 @@ export class CellModel {
     y,
     figure,
     colorVariant,
+    isAvailable,
   }: CellModelConstructor) {
     this.variant = colorVariant;
     this.x = x;
     this.y = y;
     this.id = uuidV4();
     this.figure = figure;
+    this.isAvailable = isAvailable;
   }
 }

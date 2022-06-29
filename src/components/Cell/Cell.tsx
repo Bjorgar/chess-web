@@ -1,22 +1,32 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CellModel } from '../../models/CellModel';
-import { border, figure } from './Cell.css';
+import { border, bright, figureImg } from './Cell.css';
 
 interface Props {
   cell: CellModel;
 }
 
-export default function Cell({ cell }: Props): JSX.Element {
+export default function Cell({
+  cell: {
+    x,
+    y,
+    figure,
+    variant,
+    isAvailable,
+  },
+}: Props): JSX.Element {
   const [isActive, setActive] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   function clickHandler() {
     setActive(true);
-    console.log(cell.x);
-    console.log(cell.y);
+    if (figure) {
+      figure.clearMarks?.();
+      figure.getAvailableCoords?.({ x, y });
+    }
   }
 
   function inActivateCell() {
@@ -30,15 +40,20 @@ export default function Cell({ cell }: Props): JSX.Element {
   });
 
   const isBorder = isActive ? border.active : border.inactive;
+  const isBright = isAvailable ? bright : '';
 
   return (
     <div
-      className={[cell.variant, isBorder].join(' ')}
+      className={[variant, isBorder, isBright].join(' ')}
       onClick={clickHandler}
       ref={ref}
     >
-      {cell.figure && (
-        <img className={figure} src={cell.figure?.image} alt="" />
+      {figure && (
+        <img
+          className={figureImg}
+          src={figure.image}
+          alt={figure.name}
+        />
       )}
     </div>
   );

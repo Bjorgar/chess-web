@@ -1,4 +1,11 @@
-import { FigureData } from '../types/figure';
+import { Names, Side } from './types/common';
+
+interface FigureData {
+  side: Side;
+  name: Names;
+  blackFigure: string;
+  whiteFigure: string;
+}
 
 export class Figure {
   side;

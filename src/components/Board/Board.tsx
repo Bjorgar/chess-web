@@ -10,10 +10,8 @@ export default function Board() {
   const [cells, setCells] = useState<CellModel[][]>();
 
   useEffect(() => {
-    const newBoard = new BoardModel();
-    newBoard.initBoard();
-    newBoard.initFigures();
-    setCells(newBoard.cells);
+    const newBoard = new BoardModel(setCells);
+    newBoard.initGame();
   }, []);
 
   return (

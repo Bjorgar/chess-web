@@ -16,7 +16,6 @@ export function useOutsideClick({
     if (!element || !isActive) return;
 
     const clickHandler = ({ target }: MouseEvent) => {
-      console.log('this');
       if (!element.contains(target as Node)) {
         callback();
       }

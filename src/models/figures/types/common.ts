@@ -1,3 +1,8 @@
+export interface Coords {
+  x: number;
+  y: number;
+}
+
 export enum Names {
   king = 'King',
   queen = 'Queen',
@@ -7,9 +12,4 @@ export enum Names {
   pawn = 'Pawn',
 }
 
-export interface FigureData {
-  side: 'black' | 'white';
-  blackFigure: string;
-  whiteFigure: string;
-  name: Names;
-}
+export type Side = 'black' | 'white';
