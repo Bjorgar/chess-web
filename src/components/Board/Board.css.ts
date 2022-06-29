@@ -1,6 +1,4 @@
-import { style, styleVariants } from '@vanilla-extract/css';
-
-import { vars } from '../../theme/theme.css';
+import { style } from '@vanilla-extract/css';
 
 export const paper = style({
   display: 'flex',
@@ -8,24 +6,15 @@ export const paper = style({
   alignItems: 'center',
 });
 
-const cell = style({
-  border: '1px solid black',
-});
-
-export const variant = styleVariants({
-  primary: [cell, { backgroundColor: vars.color.dark }],
-  secondary: [cell, { backgroundColor: vars.color.light }],
-});
-
 export const board = style({
   position: 'relative',
-  height: '700px',
-  width: '700px',
+  height: `${80 * 8}px`,
+  width: `${80 * 8}px`,
 });
 
-export const table = style({
-  borderCollapse: 'collapse',
-  height: 'inherit',
+export const playField = style({
+  display: 'flex',
+  flexWrap: 'wrap',
   width: 'inherit',
 });
 

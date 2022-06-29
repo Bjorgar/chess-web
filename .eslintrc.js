@@ -55,7 +55,6 @@ module.exports = {
     'import/no-named-as-default': 'off',
     'import/prefer-default-export': 'off',
     'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
-    'no-unused-vars': 'warn',
     'react/jsx-no-bind': 'off',
     '@typescript-eslint/indent': ['off'],
     'no-var-requires': 'off',
@@ -65,6 +64,11 @@ module.exports = {
     'simple-import-sort/exports': 'error',
     'no-restricted-exports': 'off',
     'no-plusplus': 'off',
+    'consistent-return': 'off',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['warn'],
     'simple-import-sort/imports': [
       'error',
       {

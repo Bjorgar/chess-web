@@ -1,10 +1,20 @@
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
+import { BoardModel } from '../../models/BoardModel';
+import { CellModel } from '../../models/CellModel';
+import Cell from '../Cell/Cell';
 import * as style from './Board.css';
-import { getField, getLetters, getNumbers } from './utils';
+import { getLetters, getNumbers } from './utils';
 
 export default function Board() {
-  const field = useMemo(() => getField(), []);
+  const [cells, setCells] = useState<CellModel[][]>();
+
+  useEffect(() => {
+    const newBoard = new BoardModel();
+    newBoard.initBoard();
+    newBoard.initFigures();
+    setCells(newBoard.cells);
+  }, []);
 
   return (
     <div className={style.paper}>
@@ -12,11 +22,16 @@ export default function Board() {
         <div className={style.numbers}>
           {getNumbers()}
         </div>
-        <table className={style.table}>
-          <tbody>
-            {field}
-          </tbody>
-        </table>
+        <div className={style.playField}>
+          {cells?.map((row) => (
+            row.map((cell) => (
+              <Cell
+                key={cell.id}
+                cell={cell}
+              />
+            ))
+          )).flat()}
+        </div>
         <div className={style.letters}>
           {getLetters()}
         </div>
