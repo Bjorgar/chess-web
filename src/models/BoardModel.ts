@@ -157,7 +157,6 @@ export class BoardModel {
   public clearMarks() {
     this.cells.forEach((row) => {
       row.forEach((cell) => {
-        // eslint-disable-next-line no-param-reassign
         cell.isAvailable = false;
       });
     });

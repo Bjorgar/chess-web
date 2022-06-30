@@ -1,3 +1,4 @@
+import { CellModel } from '../CellModel';
 import { Coords, Names, Side } from './types/common';
 
 interface FigureData {
@@ -46,5 +47,15 @@ export class Figure {
 
   public resetYCoord(y: number) {
     this.yCoord = y;
+  }
+
+  public checkNextCell(nextCell: CellModel, side: FigureData['side']) {
+    const isEmptyCell = !nextCell.figure;
+
+    if (isEmptyCell || nextCell.figure?.side !== side) {
+      nextCell.isAvailable = true;
+    }
+
+    return isEmptyCell;
   }
 }
