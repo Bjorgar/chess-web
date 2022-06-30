@@ -13,6 +13,10 @@ export class Bishop extends Figure {
 
   private xRightCoord = 0;
 
+  private isAvailableRDiagonal = true;
+
+  private isAvailableLDiagonal = true;
+
   private isAvailableCalculation = true;
 
   constructor(
@@ -30,55 +34,59 @@ export class Bishop extends Figure {
     this.board = board;
   }
 
-  private setCoords() {
-    if (this.xLeftCoord > this.minCoord) {
-      const nextCell = this.board.cells[this.yCoord][--this.xLeftCoord];
+  private setDiagonalXCoords() {
+    this.xLeftCoord = this.xCoord;
+    this.xRightCoord = this.xCoord;
+  }
 
-      if (!nextCell.figure) {
-        nextCell.isAvailable = true;
-      } else {
-        this.xLeftCoord = this.minCoord;
-      }
+  private resetValues(y: number) {
+    this.setDiagonalXCoords();
+    this.isAvailableCalculation = true;
+    this.isAvailableRDiagonal = true;
+    this.isAvailableLDiagonal = true;
+    this.setYCoord(y);
+  }
+
+  private setDiagonalCells() {
+    if (this.xLeftCoord > this.minCoord && this.isAvailableLDiagonal) {
+      const nextCell = this.board.cells[this.yCoord][--this.xLeftCoord];
+      this.isAvailableLDiagonal = this.checkNextCell(nextCell, this.side);
     }
 
-    if (this.xRightCoord < this.maxCoord) {
+    if (this.xRightCoord < this.maxCoord && this.isAvailableRDiagonal) {
       const nextCell = this.board.cells[this.yCoord][++this.xRightCoord];
-
-      if (!nextCell.figure) {
-        nextCell.isAvailable = true;
-      } else {
-        this.xRightCoord = this.maxCoord;
-      }
+      this.isAvailableRDiagonal = this.checkNextCell(nextCell, this.side);
     }
 
     if (
-      this.xLeftCoord === this.minCoord
-      && this.xRightCoord === this.maxCoord
+      !this.isAvailableLDiagonal
+      && !this.isAvailableRDiagonal
     ) this.isAvailableCalculation = false;
   }
 
-  private resetValues({ x, y }: Coords) {
-    this.xLeftCoord = x;
-    this.xRightCoord = x;
-    this.isAvailableCalculation = true;
-    this.resetYCoord(y);
+  private setCells(y: number) {
+    this.setDiagonalXCoords();
+
+    while (this.yCoord !== this.minCoord && this.isAvailableCalculation) {
+      --this.yCoord;
+      this.setDiagonalCells();
+    }
+
+    this.resetValues(y);
+
+    while (this.yCoord !== this.maxCoord && this.isAvailableCalculation) {
+      ++this.yCoord;
+      this.setDiagonalCells();
+    }
+
+    this.resetValues(y);
   }
 
   public getAvailableCoords(coords: Coords) {
-    this.resetValues(coords);
+    const { y } = coords;
 
-    while (this.yCoord > this.minCoord && this.isAvailableCalculation) {
-      --this.yCoord;
-      this.setCoords();
-    }
-
-    this.resetValues(coords);
-
-    while (this.yCoord < this.maxCoord && this.isAvailableCalculation) {
-      ++this.yCoord;
-      this.setCoords();
-    }
-
+    this.setDefaultValues(coords);
+    this.setCells(y);
     this.board.refreshCells();
   }
 }

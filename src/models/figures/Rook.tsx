@@ -9,6 +9,10 @@ export class Rook extends Figure {
 
   board;
 
+  private isAvailableHorizontal = true;
+
+  private isAvailableVertical = true;
+
   constructor(
     side: Side,
     board: BoardModel,
@@ -24,59 +28,56 @@ export class Rook extends Figure {
     this.board = board;
   }
 
-  private setHorizontalCoords(x: number) {
-    while (this.xCoord !== this.minCoord) {
+  private resetHorizontal(x: number) {
+    this.isAvailableHorizontal = true;
+    this.setXCoord(x);
+  }
+
+  private resetVertical(y: number) {
+    this.isAvailableVertical = true;
+    this.setYCoord(y);
+  }
+
+  private setHorizontalCells(x: number) {
+    while (this.xCoord !== this.minCoord && this.isAvailableHorizontal) {
       const nextCell = this.board.cells[this.yCoord][--this.xCoord];
-      if (nextCell.figure) {
-        this.xCoord = this.minCoord;
-      } else {
-        nextCell.isAvailable = true;
-      }
+      this.isAvailableHorizontal = this.checkNextCell(nextCell, this.side);
     }
 
-    this.resetXCoord(x);
+    this.resetHorizontal(x);
 
-    while (this.xCoord !== this.maxCoord) {
+    while (this.xCoord !== this.maxCoord && this.isAvailableHorizontal) {
       const nextCell = this.board.cells[this.yCoord][++this.xCoord];
-      if (nextCell.figure) {
-        this.xCoord = this.maxCoord;
-      } else {
-        nextCell.isAvailable = true;
-      }
+      this.isAvailableHorizontal = this.checkNextCell(nextCell, this.side);
     }
 
-    this.resetXCoord(x);
+    this.resetHorizontal(x);
   }
 
-  private setVerticalCoords(y: number) {
-    while (this.yCoord !== this.minCoord) {
+  private setVerticalCells(y: number) {
+    while (this.yCoord !== this.minCoord && this.isAvailableVertical) {
       const nextCell = this.board.cells[--this.yCoord][this.xCoord];
-      if (nextCell.figure) {
-        this.yCoord = this.minCoord;
-      } else {
-        nextCell.isAvailable = true;
-      }
+      this.isAvailableVertical = this.checkNextCell(nextCell, this.side);
     }
 
-    this.resetYCoord(y);
+    this.resetVertical(y);
 
-    while (this.yCoord !== this.maxCoord) {
+    while (this.yCoord !== this.maxCoord && this.isAvailableVertical) {
       const nextCell = this.board.cells[++this.yCoord][this.xCoord];
-      if (nextCell.figure) {
-        this.yCoord = this.maxCoord;
-      } else {
-        nextCell.isAvailable = true;
-      }
+      this.isAvailableVertical = this.checkNextCell(nextCell, this.side);
     }
 
-    this.resetYCoord(y);
+    this.resetVertical(y);
   }
 
-  public getAvailableCoords({ x, y }: Coords) {
-    this.setDefaultValues({ x, y });
-    this.setHorizontalCoords(x);
-    this.setVerticalCoords(y);
+  private setCells({ x, y }: Coords) {
+    this.setHorizontalCells(x);
+    this.setVerticalCells(y);
+  }
 
+  public getAvailableCoords(coords: Coords) {
+    this.setDefaultValues(coords);
+    this.setCells(coords);
     this.board.refreshCells();
   }
 }

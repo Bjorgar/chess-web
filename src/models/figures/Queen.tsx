@@ -13,8 +13,6 @@ export class Queen extends Figure {
 
   private xRightCoord = 0;
 
-  private border = 0;
-
   private isAvailableRDiagonal = true;
 
   private isAvailableLDiagonal = true;
@@ -51,11 +49,11 @@ export class Queen extends Figure {
     this.isAvailableLDiagonal = true;
     this.isAvailableVertical = true;
     this.isAvailableCalculation = true;
-    this.resetYCoord(y);
+    this.setYCoord(y);
   }
 
   private resetHorizontalCalculation(x: number) {
-    this.resetXCoord(x);
+    this.setXCoord(x);
     this.isAvailableHorizontal = true;
   }
 

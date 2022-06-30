@@ -30,9 +30,7 @@ export class Knight extends Figure {
 
   private setAvailableCells() {
     const nextCell = this.board.cells[this.nextY][this.nextX];
-    if (!nextCell.figure) {
-      nextCell.isAvailable = true;
-    }
+    this.checkNextCell(nextCell, this.side);
   }
 
   private setAvailableCoords({ x, y }: Coords) {

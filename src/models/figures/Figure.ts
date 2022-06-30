@@ -41,11 +41,11 @@ export class Figure {
     additionalAction?.();
   }
 
-  public resetXCoord(x: number) {
+  public setXCoord(x: number) {
     this.xCoord = x;
   }
 
-  public resetYCoord(y: number) {
+  public setYCoord(y: number) {
     this.yCoord = y;
   }
 
