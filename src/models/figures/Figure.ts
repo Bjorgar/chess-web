@@ -11,6 +11,8 @@ interface FigureData {
 export class Figure {
   side;
 
+  moves = 0;
+
   minCoord = 0;
 
   maxCoord = 7;

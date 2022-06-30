@@ -147,6 +147,7 @@ export class BoardModel {
   }
 
   public moveFigure(coords: Coords) {
+    (this.selectedFigure as FigureCommon).moves++;
     this.clearPrevCell();
     this.sidCurrentCell(coords);
     this.clearFigureData();
