@@ -82,7 +82,7 @@ export class Bishop extends Figure {
     this.resetValues(y);
   }
 
-  public getAvailableCoords(coords: Coords) {
+  public getAvailableCells(coords: Coords) {
     const { y } = coords;
 
     this.setDefaultValues(coords);

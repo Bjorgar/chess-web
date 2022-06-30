@@ -75,7 +75,7 @@ export class King extends Figure {
     }
   }
 
-  public getAvailableCoords(coords: Coords) {
+  public getAvailableCells(coords: Coords) {
     this.setCells(coords);
 
     this.board.refreshCells();

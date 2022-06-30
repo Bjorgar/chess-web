@@ -1,8 +1,8 @@
 import { mark } from '../Board.css';
-import { LETTERS } from '../constants';
+import { BOARD_LETTERS } from '../constants';
 
 export function getLetters(): React.ReactNode {
-  return LETTERS.map(
+  return BOARD_LETTERS.map(
     (letter) => <div className={mark}>{letter}</div>,
   );
 }

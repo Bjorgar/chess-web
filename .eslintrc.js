@@ -68,6 +68,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['warn'],
     'no-param-reassign': 'off',
     'class-methods-use-this': 'off',
+    'no-extra-boolean-cast': 'off',
     'simple-import-sort/imports': [
       'error',
       {

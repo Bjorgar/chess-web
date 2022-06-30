@@ -87,7 +87,7 @@ export class Knight extends Figure {
     }
   }
 
-  public getAvailableCoords(coords: Coords) {
+  public getAvailableCells(coords: Coords) {
     this.setAvailableCoords(coords);
     this.board.refreshCells();
   }

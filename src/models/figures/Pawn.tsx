@@ -4,6 +4,12 @@ import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
 import { Coords, Names, Side } from './types/common';
 
+interface ManagerNextCoords {
+  nextLCoord: number;
+  nextRCoord: number;
+  nextYCoord: number;
+}
+
 export class Pawn extends Figure {
   side;
 
@@ -36,6 +42,19 @@ export class Pawn extends Figure {
     }
   }
 
+  private manageCellCheck({
+    nextLCoord,
+    nextRCoord,
+    nextYCoord,
+  }: ManagerNextCoords) {
+    if (nextLCoord >= this.minCoord) {
+      this.checkCell({ x: nextLCoord, y: nextYCoord });
+    }
+    if (nextRCoord <= this.maxCoord) {
+      this.checkCell({ x: nextRCoord, y: nextYCoord });
+    }
+  }
+
   private checkEnemies({ x, y }: Coords) {
     const nextYCoord = this.side === 'white'
       ? y - 1
@@ -44,22 +63,12 @@ export class Pawn extends Figure {
     const nextLCoord = x - 1;
     const nextRCoord = x + 1;
 
-    if (this.side === 'white' && nextYCoord !== this.minCoord) {
-      if (nextLCoord !== this.minCoord) {
-        this.checkCell({ x: nextLCoord, y: nextYCoord });
-      }
-      if (nextRCoord !== this.maxCoord) {
-        this.checkCell({ x: nextRCoord, y: nextYCoord });
-      }
+    if (this.side === 'white' && nextYCoord >= this.minCoord) {
+      this.manageCellCheck({ nextLCoord, nextRCoord, nextYCoord });
     }
 
-    if (this.side === 'black' && nextYCoord !== this.maxCoord) {
-      if (nextLCoord !== this.minCoord) {
-        this.checkCell({ x: nextLCoord, y: nextYCoord });
-      }
-      if (nextRCoord !== this.maxCoord) {
-        this.checkCell({ x: nextRCoord, y: nextYCoord });
-      }
+    if (this.side === 'black' && nextYCoord <= this.maxCoord) {
+      this.manageCellCheck({ nextLCoord, nextRCoord, nextYCoord });
     }
   }
 
@@ -92,8 +101,11 @@ export class Pawn extends Figure {
     }
   }
 
-  public getAvailableCoords(coords: Coords) {
-    this.setDefaultValues(coords);
+  public getAvailableCells(coords: Coords) {
+    this.setDefaultValues(coords, () => {
+      this.isEnemyDetected = false;
+    });
+
     this.setCells(coords);
     this.board.refreshCells();
   }

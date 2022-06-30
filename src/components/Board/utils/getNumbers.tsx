@@ -1,11 +1,11 @@
 import { mark } from '../Board.css';
-import { FIELD_SIZE } from '../constants';
+import { BOARD_NUMBERS } from '../constants';
 
 export function getNumbers(): React.ReactNode {
   const data = [];
 
-  for (let i = 0; i < FIELD_SIZE; i++) {
-    data.push(<div className={mark}>{i + 1}</div>);
+  for (let i = 0; i < BOARD_NUMBERS.length; i++) {
+    data.push(<div className={mark}>{BOARD_NUMBERS[i]}</div>);
   }
 
   return data;

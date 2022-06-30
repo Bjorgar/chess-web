@@ -75,7 +75,7 @@ export class Rook extends Figure {
     this.setVerticalCells(y);
   }
 
-  public getAvailableCoords(coords: Coords) {
+  public getAvailableCells(coords: Coords) {
     this.setDefaultValues(coords);
     this.setCells(coords);
     this.board.refreshCells();

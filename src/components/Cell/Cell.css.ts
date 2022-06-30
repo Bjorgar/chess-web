@@ -2,6 +2,11 @@ import { style, styleVariants } from '@vanilla-extract/css';
 
 import { vars } from '../../theme/theme.css';
 
+const border = style({
+  borderStyle: 'solid',
+  borderWidth: '2px',
+});
+
 const cell = style({
   display: 'flex',
   justifyContent: 'center',
@@ -16,14 +21,19 @@ export const variant = styleVariants({
   secondary: [cell, { backgroundColor: vars.color.light }],
 });
 
-export const border = styleVariants({
-  active: {
-    border: '2px solid red',
+export const blackBorder = style([
+  border,
+  {
+    borderColor: 'blue',
   },
-  inactive: {
-    border: 'none',
+]);
+
+export const whiteBorder = style([
+  border,
+  {
+    borderColor: 'red',
   },
-});
+]);
 
 export const figureImg = style({
   height: '90%',

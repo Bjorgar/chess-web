@@ -120,7 +120,7 @@ export class Queen extends Figure {
     this.setHorizontalCells(x);
   }
 
-  public getAvailableCoords(coords: Coords) {
+  public getAvailableCells(coords: Coords) {
     this.setDefaultValues(coords);
     this.setCells(coords);
 

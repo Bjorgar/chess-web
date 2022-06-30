@@ -1,6 +1,10 @@
 import { Dispatch, SetStateAction } from 'react';
 
-import { FIELD_SIZE } from '../components/Board/constants';
+import {
+  BOARD_LETTERS,
+  BOARD_NUMBERS,
+  FIELD_SIZE,
+} from '../components/Board/constants';
 import { variant } from '../components/Cell/Cell.css';
 import { CellModel } from './CellModel';
 import { Bishop } from './figures/Bishop';
@@ -9,15 +13,26 @@ import { Knight } from './figures/Knight';
 import { Pawn } from './figures/Pawn';
 import { Queen } from './figures/Queen';
 import { Rook } from './figures/Rook';
+import { RecordData } from './figures/types/boardModel';
 import { Coords } from './figures/types/common';
 import { FigureCommon } from './figures/types/figureModel';
 
 export class BoardModel {
   cells: CellModel[][] = [];
 
+  turn: FigureCommon['side'] = 'white';
+
   selectedFigure: FigureCommon | null = null;
 
   selectedFigureCoords: Coords | null = null;
+
+  blackDestroyedFigures: FigureCommon[] = [];
+
+  whiteDestroyedFigures: FigureCommon[] = [];
+
+  blackRecordedMover: RecordData[] = [];
+
+  whiteRecordedMover: RecordData[] = [];
 
   public setCells;
 
@@ -127,13 +142,42 @@ export class BoardModel {
     this.initRooks();
   }
 
-  private sidCurrentCell({ x, y }: Coords) {
+  private captureCurrentCell({ x, y }: Coords) {
+    const enemy = this.cells[y][x].figure;
+
+    if (!!enemy) {
+      if (this.turn === 'white') {
+        this.whiteDestroyedFigures.push(enemy);
+      } else {
+        this.blackDestroyedFigures.push(enemy);
+      }
+    }
     this.cells[y][x].figure = this.selectedFigure;
   }
 
   private clearFigureData() {
     this.selectedFigure = null;
     this.selectedFigureCoords = null;
+  }
+
+  private changeTurn() {
+    this.turn = this.turn === 'white'
+      ? 'black'
+      : 'white';
+  }
+
+  private recordMove({ x: currentX, y: currentY }: Coords) {
+    const { x: prevX, y: prevY } = this.selectedFigureCoords as Coords;
+    const prevCell = `${BOARD_LETTERS[prevY]}${BOARD_NUMBERS[prevX]}`;
+    const currentCell = `${BOARD_LETTERS[currentY]}${BOARD_NUMBERS[currentX]}`;
+
+    if (this.turn === 'white') {
+      this.whiteRecordedMover.push({
+        prevCell,
+        currentCell,
+        date: Date.now,
+      });
+    }
   }
 
   public refreshCells() {
@@ -149,7 +193,9 @@ export class BoardModel {
   public moveFigure(coords: Coords) {
     (this.selectedFigure as FigureCommon).moves++;
     this.clearPrevCell();
-    this.sidCurrentCell(coords);
+    this.captureCurrentCell(coords);
+    this.recordMove(coords);
+    this.changeTurn();
     this.clearFigureData();
     this.clearMarks();
     this.refreshCells();
@@ -166,6 +212,10 @@ export class BoardModel {
   }
 
   public setFigureData(figure: FigureCommon, coords: Coords) {
+    if (this.selectedFigure) {
+      this.clearMarks();
+    }
+
     this.selectedFigure = figure;
     this.selectedFigureCoords = coords;
   }

@@ -3,7 +3,12 @@ import { useRef, useState } from 'react';
 
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CellModel } from '../../models/CellModel';
-import { border, bright, figureImg } from './Cell.css';
+import {
+  blackBorder,
+  bright,
+  figureImg,
+  whiteBorder,
+} from './Cell.css';
 
 interface Props {
   cell: CellModel;
@@ -20,13 +25,17 @@ export default function Cell({
 }: Props): JSX.Element {
   const [isActive, setActive] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const border = board.turn === 'white'
+    ? whiteBorder
+    : blackBorder;
 
   function clickHandler() {
-    setActive(true);
-    if (figure) {
-      board.clearMarks();
+    board.clearMarks();
+
+    if (figure && figure.side === board.turn) {
+      setActive(true);
       board.setFigureData(figure, coords);
-      figure.getAvailableCoords?.(coords);
+      figure.getAvailableCells(coords);
     }
     if (isAvailable) {
       board.moveFigure(coords);
@@ -43,7 +52,7 @@ export default function Cell({
     callback: inActivateCell,
   });
 
-  const isBorder = isActive ? border.active : border.inactive;
+  const isBorder = isActive ? border : '';
   const isBright = isAvailable ? bright : '';
 
   return (
