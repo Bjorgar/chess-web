@@ -5,6 +5,7 @@ import {
   BOARD_NUMBERS,
   FIELD_SIZE,
 } from '../components/Board/constants';
+import { MovesHistory } from '../components/Board/types';
 import { variant } from '../components/Cell/Cell.css';
 import { CellModel } from './CellModel';
 import { LEFT, PawnsOrder, RIGHT } from './constants';
@@ -47,12 +48,18 @@ export class BoardModel {
 
   public setCells;
 
+  private setHistory;
+
   private blackY = 0;
 
   private whiteY = 7;
 
-  constructor(setCells: Dispatch<SetStateAction<CellModel[][] | undefined>>) {
+  constructor(
+    setCells: Dispatch<SetStateAction<CellModel[][] | undefined>>,
+    setHistory: Dispatch<SetStateAction<MovesHistory | undefined>>,
+  ) {
     this.setCells = setCells;
+    this.setHistory = setHistory;
   }
 
   private initBoard(iteration?: number, isChild?: boolean): void | CellModel[] {
@@ -248,9 +255,12 @@ export class BoardModel {
       } else {
         this.blackDestroyedFigures.push(enemy);
       }
+      this.recordMove({ x, y }, enemy.image);
+    } else {
+      this.recordMove({ x, y });
     }
 
-    // Add logic for rookierowka
+    // Add logic for сastling
     this.selectedFigure?.setCoords({ x, y });
     this.cells[y][x].figure = this.selectedFigure;
   }
@@ -266,16 +276,33 @@ export class BoardModel {
       : 'white';
   }
 
-  private recordMove({ x: currentX, y: currentY }: Coords) {
+  private refreshData() {
+    this.refreshCells();
+    this.setHistory({
+      black: this.blackRecordedMoves,
+      white: this.whiteRecordedMoves,
+    });
+  }
+
+  private recordMove({ x: currentX, y: currentY }: Coords, image?: string) {
     const { x: prevX, y: prevY } = this.selectedFigureCoords as Coords;
-    const prevCell = `${BOARD_LETTERS[prevY]}${BOARD_NUMBERS[prevX]}`;
-    const currentCell = `${BOARD_LETTERS[currentY]}${BOARD_NUMBERS[currentX]}`;
+    const prevCell = `${BOARD_NUMBERS[prevY]}${BOARD_LETTERS[prevX]}`;
+    const currentCell = `${BOARD_NUMBERS[currentY]}${BOARD_LETTERS[currentX]}`;
 
     if (this.turn === 'white') {
       this.whiteRecordedMoves.push({
         prevCell,
         currentCell,
-        date: Date.now,
+        date: Date.now(),
+        image,
+      });
+    }
+    if (this.turn === 'black') {
+      this.blackRecordedMoves.push({
+        prevCell,
+        currentCell,
+        date: Date.now(),
+        image,
       });
     }
   }
@@ -350,11 +377,22 @@ export class BoardModel {
 
     this.recordNextPossibleMove();
 
-    console.log(isMate);
+    if (isMate) {
+      // Refactoring this case
+      alert('CHECKMATE!');
+      this.cells = [];
+      this.blackRecordedMoves = [];
+      this.whiteRecordedMoves = [];
+      this.turn = 'white';
+      this.setHistory({
+        white: [],
+        black: [],
+      });
+      this.initGame();
+    }
   }
 
   public checkForCheck(side: FigureCommon['side']) {
-    console.log(this.kings.black);
     const stringCoords = `${this.kings[side].yCoord}${this.kings[side].xCoord}`;
 
     const enemiesCoords = side === 'white'
@@ -380,14 +418,13 @@ export class BoardModel {
     (this.selectedFigure as FigureCommon).moves++;
     this.clearPrevCell();
     this.captureCurrentCell(coords);
-    this.recordMove(coords);
     this.recordNextPossibleMove();
 
     this.changeTurn();
     this.checkForCheckmate();
     this.clearFigureData();
     this.clearMarks();
-    this.refreshCells();
+    this.refreshData();
   }
 
   public clearMarks() {

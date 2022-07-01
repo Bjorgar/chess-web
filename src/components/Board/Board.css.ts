@@ -2,13 +2,15 @@ import { style } from '@vanilla-extract/css';
 
 export const paper = style({
   display: 'flex',
-  flexDirection: 'column',
   alignItems: 'center',
+  justifyContent: 'center',
+  gap: '35px',
+  height: `${80 * 8}px`,
 });
 
 export const board = style({
   position: 'relative',
-  height: `${80 * 8}px`,
+  height: 'inherit',
   width: `${80 * 8}px`,
 });
 
