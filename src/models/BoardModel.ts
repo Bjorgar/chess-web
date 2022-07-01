@@ -14,7 +14,11 @@ import { Knight } from './figures/Knight';
 import { Pawn } from './figures/Pawn';
 import { Queen } from './figures/Queen';
 import { Rook } from './figures/Rook';
-import { PossibleMoves, RecordData } from './figures/types/boardModel';
+import {
+  Kings,
+  PossibleMoves,
+  RecordData,
+} from './figures/types/boardModel';
 import { Coords, FigureName } from './figures/types/common';
 import { FigureCommon } from './figures/types/figureModel';
 
@@ -35,13 +39,11 @@ export class BoardModel {
 
   whiteRecordedMoves: RecordData[] = [];
 
-  blackNextPossibleCoords: PossibleMoves = {};
+  blackNextPossibleMoves: PossibleMoves = {};
 
-  whiteNextPossibleCoords: PossibleMoves = {};
+  whiteNextPossibleMoves: PossibleMoves = {};
 
-  blackKingNextPossibleMoves: string[] = [];
-
-  whiteKingNextPossibleMoves: string[] = [];
+  kings: Kings = {} as Kings;
 
   public setCells;
 
@@ -281,8 +283,8 @@ export class BoardModel {
   private recordNextPossibleMove() {
     // Clean possible moves from
     // previous calculation
-    this.blackNextPossibleCoords = {};
-    this.whiteNextPossibleCoords = {};
+    this.blackNextPossibleMoves = {};
+    this.whiteNextPossibleMoves = {};
 
     const cellsWithFigures = this.cells
       .flat()
@@ -291,38 +293,77 @@ export class BoardModel {
     cellsWithFigures.forEach(({ figure }) => {
       figure?.recordNextPossibleCoords();
     });
-
-    console.log(this.whiteNextPossibleCoords);
   }
 
   private checkForCheckmate() {
     const isCheck = this.checkForCheck(this.turn);
     if (isCheck) {
       alert('CHECK!');
+      this.checkForMate();
     }
   }
 
-  // private checkForMate() {
+  private checkForMate() {
+    const kingFigure = this.kings[this.turn];
+    const alliedMoves = this.turn === 'white'
+      ? this.whiteNextPossibleMoves
+      : this.blackNextPossibleMoves;
 
-  // }
+    const currentX = this.kings[this.turn].xCoord;
+    const currentY = this.kings[this.turn].yCoord;
 
-  public checkForCheck(kingsSide: FigureCommon['side']) {
-    const cellWithKing = this.cells.flat()
-      .find((cell) => (
-        cell.figure?.name === FigureName.king
-        && cell.figure.side === kingsSide
-      ));
+    const kingsPossibleMoves = alliedMoves[FigureName.king];
 
-    const { coords } = cellWithKing as CellModel;
-    const kingCoords = `${coords.y}${coords.x}`;
+    const imitateMoves = ({ x, y }: Coords) => {
+      // remove king from his ovn position
+      this.cells[currentY][currentX].figure = null;
 
-    const enemiesCoords = kingsSide === 'white'
-      ? this.blackNextPossibleCoords
-      : this.whiteNextPossibleCoords;
+      // move king to position
+      this.cells[y][x].figure = kingFigure;
+      kingFigure?.setCoords({ x, y });
+    };
+
+    const moveBack = ({ x, y }: Coords) => {
+      // remove king from his prev position
+      this.cells[y][x].figure = null;
+
+      // move to ovn position
+      kingFigure?.setCoords({ x: currentX, y: currentY });
+      this.cells[currentY][currentX].figure = kingFigure;
+    };
+
+    // Imitation of king`s moves
+    const isMate = kingsPossibleMoves.every((possibleMove) => {
+      const y = +possibleMove.split('')[0];
+      const x = +possibleMove.split('')[1];
+
+      imitateMoves({ x, y });
+
+      this.recordNextPossibleMove();
+
+      const isCheck = this.checkForCheck(this.turn);
+
+      moveBack({ x, y });
+
+      return isCheck;
+    });
+
+    this.recordNextPossibleMove();
+
+    console.log(isMate);
+  }
+
+  public checkForCheck(side: FigureCommon['side']) {
+    console.log(this.kings.black);
+    const stringCoords = `${this.kings[side].yCoord}${this.kings[side].xCoord}`;
+
+    const enemiesCoords = side === 'white'
+      ? this.blackNextPossibleMoves
+      : this.whiteNextPossibleMoves;
 
     return Object.values(enemiesCoords)
       .flat()
-      .some((coord) => coord === kingCoords);
+      .some((coord) => coord === stringCoords);
   }
 
   public refreshCells() {

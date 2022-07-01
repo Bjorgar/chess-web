@@ -1,3 +1,5 @@
+import { FigureCommon } from './figureModel';
+
 export interface RecordData {
   date: () => number;
   prevCell: string;
@@ -6,4 +8,9 @@ export interface RecordData {
 
 export interface PossibleMoves {
   [key: string]: string[]
+}
+
+export interface Kings {
+  white: FigureCommon;
+  black: FigureCommon;
 }

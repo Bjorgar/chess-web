@@ -67,8 +67,8 @@ export class Figure {
     const nextY = nextCell.coords.y;
     const nextX = nextCell.coords.x;
     const coordsTarget = this.side === 'white'
-      ? this.board.whiteNextPossibleCoords
-      : this.board.blackNextPossibleCoords;
+      ? this.board.whiteNextPossibleMoves
+      : this.board.blackNextPossibleMoves;
 
     if (coordsTarget[this.name]) {
       coordsTarget[this.name].push(`${nextY}${nextX}`);

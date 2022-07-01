@@ -21,6 +21,7 @@ export class King extends Figure {
 
     this.side = side;
     this.board = board;
+    this.board.kings[side] = this;
   }
 
   private setCells({ x, y }: Coords) {
