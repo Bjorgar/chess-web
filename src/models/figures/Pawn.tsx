@@ -2,7 +2,7 @@ import pawnBlack from '../../assets/pawn-black.png';
 import pawnWhite from '../../assets/pawn-white.png';
 import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, Names, Side } from './types/common';
+import { Coords, FigureName, Side } from './types/common';
 
 interface ManagerNextCoords {
   nextLCoord: number;
@@ -17,14 +17,16 @@ export class Pawn extends Figure {
     side: Side,
     board: BoardModel,
     coords: Coords,
+    namePrefix: string,
   ) {
     super({
       side,
       blackFigure: pawnBlack,
       whiteFigure: pawnWhite,
-      name: Names.pawn,
+      name: FigureName.pawn,
       coords,
       board,
+      namePrefix,
     });
 
     this.side = side;
@@ -38,6 +40,13 @@ export class Pawn extends Figure {
     if (isFully && cell.figure?.side !== this.side) {
       cell.isAvailable = true;
       this.isEnemyDetected = true;
+      if (this.isPreview) {
+        this.addPossibleCoords(cell);
+      }
+    }
+
+    if (!isFully && this.isPreview) {
+      this.addPossibleCoords(cell);
     }
   }
 
@@ -100,17 +109,17 @@ export class Pawn extends Figure {
     }
 
     this.setYCoord(y);
+    this.isEnemyDetected = false;
   }
 
-  public getAvailableCells(preview?: boolean) {
-    if (preview) {
-      this.isPreview = preview;
-    }
-
+  public recordNextPossibleCoords() {
+    this.isPreview = true;
     this.setCells({ x: this.xCoord, y: this.yCoord });
-
     this.isPreview = false;
-    this.isEnemyDetected = false;
+  }
+
+  public showAvailableMoves() {
+    this.setCells({ x: this.xCoord, y: this.yCoord });
     this.board.refreshCells();
   }
 }

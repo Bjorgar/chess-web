@@ -3,7 +3,7 @@ export interface Coords {
   y: number;
 }
 
-export enum Names {
+export enum FigureName {
   king = 'King',
   queen = 'Queen',
   bishop = 'Bishop',

@@ -7,14 +7,15 @@ import {
 } from '../components/Board/constants';
 import { variant } from '../components/Cell/Cell.css';
 import { CellModel } from './CellModel';
+import { LEFT, PawnsOrder, RIGHT } from './constants';
 import { Bishop } from './figures/Bishop';
 import { King } from './figures/King';
 import { Knight } from './figures/Knight';
 import { Pawn } from './figures/Pawn';
 import { Queen } from './figures/Queen';
 import { Rook } from './figures/Rook';
-import { RecordData } from './figures/types/boardModel';
-import { Coords } from './figures/types/common';
+import { PossibleMoves, RecordData } from './figures/types/boardModel';
+import { Coords, FigureName } from './figures/types/common';
 import { FigureCommon } from './figures/types/figureModel';
 
 export class BoardModel {
@@ -30,9 +31,17 @@ export class BoardModel {
 
   whiteDestroyedFigures: FigureCommon[] = [];
 
-  blackRecordedMover: RecordData[] = [];
+  blackRecordedMoves: RecordData[] = [];
 
-  whiteRecordedMover: RecordData[] = [];
+  whiteRecordedMoves: RecordData[] = [];
+
+  blackNextPossibleCoords: PossibleMoves = {};
+
+  whiteNextPossibleCoords: PossibleMoves = {};
+
+  blackKingNextPossibleMoves: string[] = [];
+
+  whiteKingNextPossibleMoves: string[] = [];
 
   public setCells;
 
@@ -76,8 +85,18 @@ export class BoardModel {
       const blackY = 1;
       const whiteY = 6;
 
-      this.cells[blackY][x].figure = new Pawn('black', this, { x, y: blackY });
-      this.cells[whiteY][x].figure = new Pawn('white', this, { x, y: whiteY });
+      this.cells[blackY][x].figure = new Pawn(
+        'black',
+        this,
+        { x, y: blackY },
+        PawnsOrder[x],
+      );
+      this.cells[whiteY][x].figure = new Pawn(
+        'white',
+        this,
+        { x, y: whiteY },
+        PawnsOrder[x],
+      );
     }
   }
 
@@ -119,22 +138,26 @@ export class BoardModel {
       'black',
       this,
       { x: leftX, y: this.blackY },
+      LEFT,
     );
     this.cells[this.blackY][rightX].figure = new Bishop(
       'black',
       this,
       { x: rightX, y: this.blackY },
+      RIGHT,
     );
 
     this.cells[this.whiteY][leftX].figure = new Bishop(
       'white',
       this,
       { x: leftX, y: this.whiteY },
+      LEFT,
     );
     this.cells[this.whiteY][rightX].figure = new Bishop(
       'white',
       this,
       { x: rightX, y: this.whiteY },
+      RIGHT,
     );
   }
 
@@ -146,22 +169,26 @@ export class BoardModel {
       'black',
       this,
       { x: leftX, y: this.blackY },
+      LEFT,
     );
     this.cells[this.blackY][rightX].figure = new Knight(
       'black',
       this,
       { x: rightX, y: this.blackY },
+      RIGHT,
     );
 
     this.cells[this.whiteY][leftX].figure = new Knight(
       'white',
       this,
       { x: leftX, y: this.whiteY },
+      LEFT,
     );
     this.cells[this.whiteY][rightX].figure = new Knight(
       'white',
       this,
       { x: rightX, y: this.whiteY },
+      RIGHT,
     );
   }
 
@@ -173,22 +200,26 @@ export class BoardModel {
       'black',
       this,
       { x: leftX, y: this.blackY },
+      LEFT,
     );
     this.cells[this.blackY][rightX].figure = new Rook(
       'black',
       this,
       { x: rightX, y: this.blackY },
+      RIGHT,
     );
 
     this.cells[this.whiteY][leftX].figure = new Rook(
       'white',
       this,
       { x: leftX, y: this.whiteY },
+      LEFT,
     );
     this.cells[this.whiteY][rightX].figure = new Rook(
       'white',
       this,
       { x: rightX, y: this.whiteY },
+      RIGHT,
     );
   }
 
@@ -217,6 +248,7 @@ export class BoardModel {
       }
     }
 
+    // Add logic for rookierowka
     this.selectedFigure?.setCoords({ x, y });
     this.cells[y][x].figure = this.selectedFigure;
   }
@@ -238,7 +270,7 @@ export class BoardModel {
     const currentCell = `${BOARD_LETTERS[currentY]}${BOARD_NUMBERS[currentX]}`;
 
     if (this.turn === 'white') {
-      this.whiteRecordedMover.push({
+      this.whiteRecordedMoves.push({
         prevCell,
         currentCell,
         date: Date.now,
@@ -246,15 +278,51 @@ export class BoardModel {
     }
   }
 
-  private recordNextFiguresMove() {
-    const preview = true;
+  private recordNextPossibleMove() {
+    // Clean possible moves from
+    // previous calculation
+    this.blackNextPossibleCoords = {};
+    this.whiteNextPossibleCoords = {};
+
     const cellsWithFigures = this.cells
       .flat()
       .filter((cell) => cell.figure);
 
     cellsWithFigures.forEach(({ figure }) => {
-      figure?.getAvailableCells(preview);
+      figure?.recordNextPossibleCoords();
     });
+
+    console.log(this.whiteNextPossibleCoords);
+  }
+
+  private checkForCheckmate() {
+    const isCheck = this.checkForCheck(this.turn);
+    if (isCheck) {
+      alert('CHECK!');
+    }
+  }
+
+  // private checkForMate() {
+
+  // }
+
+  public checkForCheck(kingsSide: FigureCommon['side']) {
+    const cellWithKing = this.cells.flat()
+      .find((cell) => (
+        cell.figure?.name === FigureName.king
+        && cell.figure.side === kingsSide
+      ));
+
+    const { coords } = cellWithKing as CellModel;
+    const kingCoords = `${coords.y}${coords.x}`;
+
+    const enemiesCoords = kingsSide === 'white'
+      ? this.blackNextPossibleCoords
+      : this.whiteNextPossibleCoords;
+
+    return Object.values(enemiesCoords)
+      .flat()
+      .some((coord) => coord === kingCoords);
   }
 
   public refreshCells() {
@@ -272,8 +340,10 @@ export class BoardModel {
     this.clearPrevCell();
     this.captureCurrentCell(coords);
     this.recordMove(coords);
-    this.recordNextFiguresMove();
+    this.recordNextPossibleMove();
+
     this.changeTurn();
+    this.checkForCheckmate();
     this.clearFigureData();
     this.clearMarks();
     this.refreshCells();

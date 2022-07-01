@@ -2,7 +2,7 @@ import queenBlack from '../../assets/queen-black.png';
 import queenWhite from '../../assets/queen-white.png';
 import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, Names, Side } from './types/common';
+import { Coords, FigureName, Side } from './types/common';
 
 export class Queen extends Figure {
   private xLeftCoord = 0;
@@ -28,7 +28,7 @@ export class Queen extends Figure {
       side,
       blackFigure: queenBlack,
       whiteFigure: queenWhite,
-      name: Names.queen,
+      name: FigureName.queen,
       coords,
       board,
     });
@@ -59,17 +59,17 @@ export class Queen extends Figure {
   private setVerticalAndDiagonalCells() {
     if (this.xLeftCoord > this.minCoord && this.isAvailableLDiagonal) {
       const nextCell = this.board.cells[this.yCoord][--this.xLeftCoord];
-      this.isAvailableLDiagonal = this.checkNextCell(nextCell, this.side);
+      this.isAvailableLDiagonal = this.checkNextCell(nextCell);
     }
 
     if (this.xRightCoord < this.maxCoord && this.isAvailableRDiagonal) {
       const nextCell = this.board.cells[this.yCoord][++this.xRightCoord];
-      this.isAvailableRDiagonal = this.checkNextCell(nextCell, this.side);
+      this.isAvailableRDiagonal = this.checkNextCell(nextCell);
     }
 
     if (this.isAvailableVertical) {
       const nextCell = this.board.cells[this.yCoord][this.xCoord];
-      this.isAvailableVertical = this.checkNextCell(nextCell, this.side);
+      this.isAvailableVertical = this.checkNextCell(nextCell);
     }
 
     if (
@@ -83,14 +83,14 @@ export class Queen extends Figure {
   private setHorizontalCells(x: number) {
     while (this.xCoord !== this.minCoord && this.isAvailableHorizontal) {
       const nextCell = this.board.cells[this.yCoord][--this.xCoord];
-      this.isAvailableHorizontal = this.checkNextCell(nextCell, this.side);
+      this.isAvailableHorizontal = this.checkNextCell(nextCell);
     }
 
     this.resetHorizontalCalculation(x);
 
     while (this.xCoord !== this.maxCoord && this.isAvailableHorizontal) {
       const nextCell = this.board.cells[this.yCoord][++this.xCoord];
-      this.isAvailableHorizontal = this.checkNextCell(nextCell, this.side);
+      this.isAvailableHorizontal = this.checkNextCell(nextCell);
     }
 
     this.resetHorizontalCalculation(x);
@@ -119,14 +119,14 @@ export class Queen extends Figure {
     this.setHorizontalCells(x);
   }
 
-  public getAvailableCells(preview?: boolean) {
-    if (preview) {
-      this.isPreview = preview;
-    }
-
+  public recordNextPossibleCoords() {
+    this.isPreview = true;
     this.setCells({ x: this.xCoord, y: this.yCoord });
-
     this.isPreview = false;
+  }
+
+  public showAvailableMoves() {
+    this.setCells({ x: this.xCoord, y: this.yCoord });
     this.board.refreshCells();
   }
 }

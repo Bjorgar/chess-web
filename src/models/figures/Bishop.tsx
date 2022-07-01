@@ -2,7 +2,7 @@ import bishopBlack from '../../assets/bishop-black.png';
 import bishopWhite from '../../assets/bishop-white.png';
 import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, Names, Side } from './types/common';
+import { Coords, FigureName, Side } from './types/common';
 
 export class Bishop extends Figure {
   private xLeftCoord = 0;
@@ -19,14 +19,16 @@ export class Bishop extends Figure {
     side: Side,
     board: BoardModel,
     coords: Coords,
+    namePrefix: string,
   ) {
     super({
       side,
       blackFigure: bishopBlack,
       whiteFigure: bishopWhite,
-      name: Names.bishop,
+      name: FigureName.bishop,
       coords,
       board,
+      namePrefix,
     });
 
     this.side = side;
@@ -49,12 +51,12 @@ export class Bishop extends Figure {
   private setDiagonalCells() {
     if (this.xLeftCoord > this.minCoord && this.isAvailableLDiagonal) {
       const nextCell = this.board.cells[this.yCoord][--this.xLeftCoord];
-      this.isAvailableLDiagonal = this.checkNextCell(nextCell, this.side);
+      this.isAvailableLDiagonal = this.checkNextCell(nextCell);
     }
 
     if (this.xRightCoord < this.maxCoord && this.isAvailableRDiagonal) {
       const nextCell = this.board.cells[this.yCoord][++this.xRightCoord];
-      this.isAvailableRDiagonal = this.checkNextCell(nextCell, this.side);
+      this.isAvailableRDiagonal = this.checkNextCell(nextCell);
     }
 
     if (
@@ -81,13 +83,14 @@ export class Bishop extends Figure {
     this.resetValues(y);
   }
 
-  public getAvailableCells(preview?: boolean) {
-    if (preview) {
-      this.isPreview = preview;
-    }
+  public recordNextPossibleCoords() {
+    this.isPreview = true;
     this.setCells(this.yCoord);
-
     this.isPreview = false;
+  }
+
+  public showAvailableMoves() {
+    this.setCells(this.yCoord);
     this.board.refreshCells();
   }
 }

@@ -1,14 +1,15 @@
 import { BoardModel } from '../BoardModel';
 import { CellModel } from '../CellModel';
-import { Coords, Names, Side } from './types/common';
+import { Coords, FigureName, Side } from './types/common';
 
 interface FigureData {
   side: Side;
-  name: Names;
+  name: FigureName;
   blackFigure: string;
   whiteFigure: string;
   coords: Coords;
   board: BoardModel;
+  namePrefix?: string,
 }
 
 export class Figure {
@@ -39,12 +40,13 @@ export class Figure {
     name,
     coords,
     board,
+    namePrefix,
   }: FigureData) {
     this.side = side;
     this.board = board;
     this.xCoord = coords.x;
     this.yCoord = coords.y;
-    this.name = `${side}${name}`;
+    this.name = namePrefix ? `${namePrefix} ${name}` : name;
     this.image = side === 'black' ? blackFigure : whiteFigure;
   }
 
@@ -61,11 +63,28 @@ export class Figure {
     this.yCoord = y;
   }
 
-  public checkNextCell(nextCell: CellModel, side: FigureData['side']) {
+  public addPossibleCoords(nextCell: CellModel) {
+    const nextY = nextCell.coords.y;
+    const nextX = nextCell.coords.x;
+    const coordsTarget = this.side === 'white'
+      ? this.board.whiteNextPossibleCoords
+      : this.board.blackNextPossibleCoords;
+
+    if (coordsTarget[this.name]) {
+      coordsTarget[this.name].push(`${nextY}${nextX}`);
+    } else {
+      coordsTarget[this.name] = [`${nextY}${nextX}`];
+    }
+  }
+
+  public checkNextCell(nextCell: CellModel) {
     const isEmptyCell = !nextCell.figure;
 
-    if (isEmptyCell || nextCell.figure?.side !== side) {
+    if (isEmptyCell || nextCell.figure?.side !== this.side) {
       nextCell.isAvailable = true;
+      if (this.isPreview) {
+        this.addPossibleCoords(nextCell);
+      }
     }
 
     return isEmptyCell;

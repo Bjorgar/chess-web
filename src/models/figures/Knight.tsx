@@ -2,7 +2,7 @@ import knightBlack from '../../assets/knight-black.png';
 import knightWhite from '../../assets/knight-white.png';
 import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, Names, Side } from './types/common';
+import { Coords, FigureName, Side } from './types/common';
 
 export class Knight extends Figure {
   private nextX = 0;
@@ -13,14 +13,16 @@ export class Knight extends Figure {
     side: Side,
     board: BoardModel,
     coords: Coords,
+    namePrefix: string,
   ) {
     super({
       side,
       blackFigure: knightBlack,
       whiteFigure: knightWhite,
-      name: Names.knight,
+      name: FigureName.knight,
       coords,
       board,
+      namePrefix,
     });
 
     this.side = side;
@@ -29,7 +31,7 @@ export class Knight extends Figure {
 
   private setAvailableCells() {
     const nextCell = this.board.cells[this.nextY][this.nextX];
-    this.checkNextCell(nextCell, this.side);
+    this.checkNextCell(nextCell);
   }
 
   private setAvailableCoords({ x, y }: Coords) {
@@ -86,12 +88,14 @@ export class Knight extends Figure {
     }
   }
 
-  public getAvailableCells(preview?: boolean) {
-    if (preview) {
-      this.isPreview = preview;
-    }
+  public recordNextPossibleCoords() {
+    this.isPreview = true;
     this.setAvailableCoords({ x: this.xCoord, y: this.yCoord });
     this.isPreview = false;
+  }
+
+  public showAvailableMoves() {
+    this.setAvailableCoords({ x: this.xCoord, y: this.yCoord });
     this.board.refreshCells();
   }
 }

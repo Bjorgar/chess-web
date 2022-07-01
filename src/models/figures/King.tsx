@@ -2,7 +2,7 @@ import kingBlack from '../../assets/king-black.png';
 import kingWhite from '../../assets/king-white.png';
 import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, Names, Side } from './types/common';
+import { Coords, FigureName, Side } from './types/common';
 
 export class King extends Figure {
   constructor(
@@ -14,7 +14,7 @@ export class King extends Figure {
       side,
       blackFigure: kingBlack,
       whiteFigure: kingWhite,
-      name: Names.king,
+      name: FigureName.king,
       coords,
       board,
     });
@@ -25,62 +25,39 @@ export class King extends Figure {
 
   private setCells({ x, y }: Coords) {
     if (y - 1 >= this.minCoord && x - 1 >= this.minCoord) {
-      this.checkNextCell(
-        this.board.cells[y - 1][x - 1],
-        this.side,
-      );
+      this.checkNextCell(this.board.cells[y - 1][x - 1]);
     }
     if (y - 1 >= this.minCoord && x + 1 <= this.maxCoord) {
-      this.checkNextCell(
-        this.board.cells[y - 1][x + 1],
-        this.side,
-      );
+      this.checkNextCell(this.board.cells[y - 1][x + 1]);
     }
     if (y + 1 <= this.maxCoord && x + 1 <= this.maxCoord) {
-      this.checkNextCell(
-        this.board.cells[y + 1][x + 1],
-        this.side,
-      );
+      this.checkNextCell(this.board.cells[y + 1][x + 1]);
     }
     if (y + 1 <= this.maxCoord && x - 1 >= this.minCoord) {
-      this.checkNextCell(
-        this.board.cells[y + 1][x - 1],
-        this.side,
-      );
+      this.checkNextCell(this.board.cells[y + 1][x - 1]);
     }
     if (y - 1 >= this.minCoord) {
-      this.checkNextCell(
-        this.board.cells[y - 1][x],
-        this.side,
-      );
+      this.checkNextCell(this.board.cells[y - 1][x]);
     }
     if (y + 1 <= this.maxCoord) {
-      this.checkNextCell(
-        this.board.cells[y + 1][x],
-        this.side,
-      );
+      this.checkNextCell(this.board.cells[y + 1][x]);
     }
     if (x - 1 >= this.minCoord) {
-      this.checkNextCell(
-        this.board.cells[y][x - 1],
-        this.side,
-      );
+      this.checkNextCell(this.board.cells[y][x - 1]);
     }
     if (x + 1 <= this.maxCoord) {
-      this.checkNextCell(
-        this.board.cells[y][x + 1],
-        this.side,
-      );
+      this.checkNextCell(this.board.cells[y][x + 1]);
     }
   }
 
-  public getAvailableCells(preview?: boolean) {
-    if (preview) {
-      this.isPreview = preview;
-    }
+  public recordNextPossibleCoords() {
+    this.isPreview = true;
     this.setCells({ x: this.xCoord, y: this.yCoord });
-
     this.isPreview = false;
+  }
+
+  public showAvailableMoves() {
+    this.setCells({ x: this.xCoord, y: this.yCoord });
     this.board.refreshCells();
   }
 }

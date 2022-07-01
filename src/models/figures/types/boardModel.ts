@@ -3,3 +3,7 @@ export interface RecordData {
   prevCell: string;
   currentCell: string;
 }
+
+export interface PossibleMoves {
+  [key: string]: string[]
+}
