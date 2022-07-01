@@ -11,21 +11,20 @@ interface ManagerNextCoords {
 }
 
 export class Pawn extends Figure {
-  side;
-
-  board;
-
   private isEnemyDetected = false;
 
   constructor(
     side: Side,
     board: BoardModel,
+    coords: Coords,
   ) {
     super({
       side,
       blackFigure: pawnBlack,
       whiteFigure: pawnWhite,
       name: Names.pawn,
+      coords,
+      board,
     });
 
     this.side = side;
@@ -99,14 +98,19 @@ export class Pawn extends Figure {
         }
       }
     }
+
+    this.setYCoord(y);
   }
 
-  public getAvailableCells(coords: Coords) {
-    this.setDefaultValues(coords, () => {
-      this.isEnemyDetected = false;
-    });
+  public getAvailableCells(preview?: boolean) {
+    if (preview) {
+      this.isPreview = preview;
+    }
 
-    this.setCells(coords);
+    this.setCells({ x: this.xCoord, y: this.yCoord });
+
+    this.isPreview = false;
+    this.isEnemyDetected = false;
     this.board.refreshCells();
   }
 }

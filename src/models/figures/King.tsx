@@ -5,19 +5,18 @@ import { Figure } from './Figure';
 import { Coords, Names, Side } from './types/common';
 
 export class King extends Figure {
-  side;
-
-  board;
-
   constructor(
     side: Side,
     board: BoardModel,
+    coords: Coords,
   ) {
     super({
       side,
       blackFigure: kingBlack,
       whiteFigure: kingWhite,
       name: Names.king,
+      coords,
+      board,
     });
 
     this.side = side;
@@ -75,9 +74,13 @@ export class King extends Figure {
     }
   }
 
-  public getAvailableCells(coords: Coords) {
-    this.setCells(coords);
+  public getAvailableCells(preview?: boolean) {
+    if (preview) {
+      this.isPreview = preview;
+    }
+    this.setCells({ x: this.xCoord, y: this.yCoord });
 
+    this.isPreview = false;
     this.board.refreshCells();
   }
 }

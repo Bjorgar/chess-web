@@ -1,3 +1,4 @@
+import { BoardModel } from '../BoardModel';
 import { CellModel } from '../CellModel';
 import { Coords, Names, Side } from './types/common';
 
@@ -6,10 +7,16 @@ interface FigureData {
   name: Names;
   blackFigure: string;
   whiteFigure: string;
+  coords: Coords;
+  board: BoardModel;
 }
 
 export class Figure {
+  board;
+
   side;
+
+  isPreview = false;
 
   moves = 0;
 
@@ -30,17 +37,15 @@ export class Figure {
     blackFigure,
     whiteFigure,
     name,
+    coords,
+    board,
   }: FigureData) {
     this.side = side;
+    this.board = board;
+    this.xCoord = coords.x;
+    this.yCoord = coords.y;
     this.name = `${side}${name}`;
     this.image = side === 'black' ? blackFigure : whiteFigure;
-  }
-
-  public setDefaultValues({ x, y }: Coords, additionalAction?: () => void) {
-    this.xCoord = x;
-    this.yCoord = y;
-
-    additionalAction?.();
   }
 
   public setXCoord(x: number) {
@@ -48,6 +53,11 @@ export class Figure {
   }
 
   public setYCoord(y: number) {
+    this.yCoord = y;
+  }
+
+  public setCoords({ x, y }: Coords) {
+    this.xCoord = x;
     this.yCoord = y;
   }
 

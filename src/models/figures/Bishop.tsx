@@ -5,10 +5,6 @@ import { Figure } from './Figure';
 import { Coords, Names, Side } from './types/common';
 
 export class Bishop extends Figure {
-  side;
-
-  board;
-
   private xLeftCoord = 0;
 
   private xRightCoord = 0;
@@ -22,12 +18,15 @@ export class Bishop extends Figure {
   constructor(
     side: Side,
     board: BoardModel,
+    coords: Coords,
   ) {
     super({
       side,
       blackFigure: bishopBlack,
       whiteFigure: bishopWhite,
       name: Names.bishop,
+      coords,
+      board,
     });
 
     this.side = side;
@@ -82,11 +81,13 @@ export class Bishop extends Figure {
     this.resetValues(y);
   }
 
-  public getAvailableCells(coords: Coords) {
-    const { y } = coords;
+  public getAvailableCells(preview?: boolean) {
+    if (preview) {
+      this.isPreview = preview;
+    }
+    this.setCells(this.yCoord);
 
-    this.setDefaultValues(coords);
-    this.setCells(y);
+    this.isPreview = false;
     this.board.refreshCells();
   }
 }

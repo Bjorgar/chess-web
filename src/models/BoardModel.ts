@@ -76,56 +76,120 @@ export class BoardModel {
       const blackY = 1;
       const whiteY = 6;
 
-      this.cells[blackY][x].figure = new Pawn('black', this);
-      this.cells[whiteY][x].figure = new Pawn('white', this);
+      this.cells[blackY][x].figure = new Pawn('black', this, { x, y: blackY });
+      this.cells[whiteY][x].figure = new Pawn('white', this, { x, y: whiteY });
     }
   }
 
   private initKings() {
     const x = 3;
 
-    this.cells[this.blackY][x].figure = new King('black', this);
-    this.cells[this.whiteY][x].figure = new King('white', this);
+    this.cells[this.blackY][x].figure = new King(
+      'black',
+      this,
+      { x, y: this.blackY },
+    );
+    this.cells[this.whiteY][x].figure = new King(
+      'white',
+      this,
+      { x, y: this.whiteY },
+    );
   }
 
   private initQueens() {
     const x = 4;
 
-    this.cells[this.blackY][x].figure = new Queen('black', this);
-    this.cells[this.whiteY][x].figure = new Queen('white', this);
+    this.cells[this.blackY][x].figure = new Queen(
+      'black',
+      this,
+      { x, y: this.blackY },
+    );
+    this.cells[this.whiteY][x].figure = new Queen(
+      'white',
+      this,
+      { x, y: this.whiteY },
+    );
   }
 
   private initBishops() {
     const rightX = 5;
     const leftX = 2;
 
-    this.cells[this.blackY][leftX].figure = new Bishop('black', this);
-    this.cells[this.blackY][rightX].figure = new Bishop('black', this);
+    this.cells[this.blackY][leftX].figure = new Bishop(
+      'black',
+      this,
+      { x: leftX, y: this.blackY },
+    );
+    this.cells[this.blackY][rightX].figure = new Bishop(
+      'black',
+      this,
+      { x: rightX, y: this.blackY },
+    );
 
-    this.cells[this.whiteY][leftX].figure = new Bishop('white', this);
-    this.cells[this.whiteY][rightX].figure = new Bishop('white', this);
+    this.cells[this.whiteY][leftX].figure = new Bishop(
+      'white',
+      this,
+      { x: leftX, y: this.whiteY },
+    );
+    this.cells[this.whiteY][rightX].figure = new Bishop(
+      'white',
+      this,
+      { x: rightX, y: this.whiteY },
+    );
   }
 
   private initKnights() {
     const rightX = 6;
     const leftX = 1;
 
-    this.cells[this.blackY][leftX].figure = new Knight('black', this);
-    this.cells[this.blackY][rightX].figure = new Knight('black', this);
+    this.cells[this.blackY][leftX].figure = new Knight(
+      'black',
+      this,
+      { x: leftX, y: this.blackY },
+    );
+    this.cells[this.blackY][rightX].figure = new Knight(
+      'black',
+      this,
+      { x: rightX, y: this.blackY },
+    );
 
-    this.cells[this.whiteY][leftX].figure = new Knight('white', this);
-    this.cells[this.whiteY][rightX].figure = new Knight('white', this);
+    this.cells[this.whiteY][leftX].figure = new Knight(
+      'white',
+      this,
+      { x: leftX, y: this.whiteY },
+    );
+    this.cells[this.whiteY][rightX].figure = new Knight(
+      'white',
+      this,
+      { x: rightX, y: this.whiteY },
+    );
   }
 
   private initRooks() {
     const rightX = 7;
     const leftX = 0;
 
-    this.cells[this.blackY][leftX].figure = new Rook('black', this);
-    this.cells[this.blackY][rightX].figure = new Rook('black', this);
+    this.cells[this.blackY][leftX].figure = new Rook(
+      'black',
+      this,
+      { x: leftX, y: this.blackY },
+    );
+    this.cells[this.blackY][rightX].figure = new Rook(
+      'black',
+      this,
+      { x: rightX, y: this.blackY },
+    );
 
-    this.cells[this.whiteY][leftX].figure = new Rook('white', this);
-    this.cells[this.whiteY][rightX].figure = new Rook('white', this);
+    this.cells[this.whiteY][leftX].figure = new Rook(
+      'white',
+      this,
+      { x: leftX, y: this.whiteY },
+    );
+    this.cells[this.whiteY][rightX].figure = new Rook(
+      'white',
+      this,
+      { x: rightX, y: this.whiteY },
+    );
   }
 
   private clearPrevCell() {
@@ -152,6 +216,8 @@ export class BoardModel {
         this.blackDestroyedFigures.push(enemy);
       }
     }
+
+    this.selectedFigure?.setCoords({ x, y });
     this.cells[y][x].figure = this.selectedFigure;
   }
 
@@ -180,6 +246,17 @@ export class BoardModel {
     }
   }
 
+  private recordNextFiguresMove() {
+    const preview = true;
+    const cellsWithFigures = this.cells
+      .flat()
+      .filter((cell) => cell.figure);
+
+    cellsWithFigures.forEach(({ figure }) => {
+      figure?.getAvailableCells(preview);
+    });
+  }
+
   public refreshCells() {
     this.setCells([...this.cells]);
   }
@@ -195,6 +272,7 @@ export class BoardModel {
     this.clearPrevCell();
     this.captureCurrentCell(coords);
     this.recordMove(coords);
+    this.recordNextFiguresMove();
     this.changeTurn();
     this.clearFigureData();
     this.clearMarks();

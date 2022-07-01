@@ -5,10 +5,6 @@ import { Figure } from './Figure';
 import { Coords, Names, Side } from './types/common';
 
 export class Queen extends Figure {
-  side;
-
-  board;
-
   private xLeftCoord = 0;
 
   private xRightCoord = 0;
@@ -26,12 +22,15 @@ export class Queen extends Figure {
   constructor(
     side: Side,
     board: BoardModel,
+    coords: Coords,
   ) {
     super({
       side,
       blackFigure: queenBlack,
       whiteFigure: queenWhite,
       name: Names.queen,
+      coords,
+      board,
     });
 
     this.side = side;
@@ -120,10 +119,14 @@ export class Queen extends Figure {
     this.setHorizontalCells(x);
   }
 
-  public getAvailableCells(coords: Coords) {
-    this.setDefaultValues(coords);
-    this.setCells(coords);
+  public getAvailableCells(preview?: boolean) {
+    if (preview) {
+      this.isPreview = preview;
+    }
 
+    this.setCells({ x: this.xCoord, y: this.yCoord });
+
+    this.isPreview = false;
     this.board.refreshCells();
   }
 }

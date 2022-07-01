@@ -35,7 +35,7 @@ export default function Cell({
     if (figure && figure.side === board.turn) {
       setActive(true);
       board.setFigureData(figure, coords);
-      figure.getAvailableCells(coords);
+      figure.getAvailableCells();
     }
     if (isAvailable) {
       board.moveFigure(coords);
