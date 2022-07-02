@@ -260,7 +260,7 @@ export class BoardModel {
       this.recordMove({ x, y });
     }
 
-    // Add logic for сastling
+    // TODO: Add logic for сastling
     this.selectedFigure?.setCoords({ x, y });
     this.cells[y][x].figure = this.selectedFigure;
   }
@@ -342,7 +342,7 @@ export class BoardModel {
     const kingsPossibleMoves = alliedMoves[FigureName.king];
 
     const imitateMoves = ({ x, y }: Coords) => {
-      // remove king from his ovn position
+      // remove king from his own position
       this.cells[currentY][currentX].figure = null;
 
       // move king to position
@@ -354,7 +354,7 @@ export class BoardModel {
       // remove king from his prev position
       this.cells[y][x].figure = null;
 
-      // move to ovn position
+      // move to own position
       kingFigure?.setCoords({ x: currentX, y: currentY });
       this.cells[currentY][currentX].figure = kingFigure;
     };
@@ -378,18 +378,29 @@ export class BoardModel {
     this.recordNextPossibleMove();
 
     if (isMate) {
-      // Refactoring this case
+      // TODO: Refactoring this case
       alert('CHECKMATE!');
-      this.cells = [];
-      this.blackRecordedMoves = [];
-      this.whiteRecordedMoves = [];
-      this.turn = 'white';
-      this.setHistory({
-        white: [],
-        black: [],
-      });
-      this.initGame();
+      this.reloadGame();
     }
+  }
+
+  private reloadGame() {
+    this.cells = [];
+    this.turn = 'white';
+    this.selectedFigure = null;
+    this.selectedFigureCoords = null;
+    this.blackDestroyedFigures = [];
+    this.whiteDestroyedFigures = [];
+    this.blackRecordedMoves = [];
+    this.whiteRecordedMoves = [];
+    this.blackNextPossibleMoves = {};
+    this.whiteNextPossibleMoves = {};
+    this.kings = {} as Kings;
+    this.setHistory({
+      white: [],
+      black: [],
+    });
+    this.initGame();
   }
 
   public checkForCheck(side: FigureCommon['side']) {
