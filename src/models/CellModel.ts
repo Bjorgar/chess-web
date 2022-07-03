@@ -6,9 +6,10 @@ import { FigureCommon } from './figures/types/figureModel';
 
 interface CellModelConstructor {
   coords: Coords;
-  figure: FigureCommon | null,
-  colorVariant: string,
-  isAvailable: boolean,
+  figure: FigureCommon | null;
+  colorVariant: string;
+  isAvailable: boolean;
+  isDanger: boolean;
   board: BoardModel;
 }
 
@@ -21,6 +22,8 @@ export class CellModel {
 
   isAvailable;
 
+  isDanger;
+
   id;
 
   readonly variant;
@@ -31,12 +34,14 @@ export class CellModel {
     colorVariant,
     isAvailable,
     board,
+    isDanger,
   }: CellModelConstructor) {
     this.variant = colorVariant;
     this.coords = coords;
     this.id = uuidV4();
     this.figure = figure;
     this.isAvailable = isAvailable;
+    this.isDanger = isDanger;
     this.board = board;
   }
 }

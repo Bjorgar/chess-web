@@ -5,10 +5,11 @@ import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CellModel } from '../../models/CellModel';
 import {
   blackBorder,
-  bright,
+  cellType,
   figureImg,
   whiteBorder,
 } from './Cell.css';
+import { CellType } from './types';
 
 interface Props {
   cell: CellModel;
@@ -20,6 +21,7 @@ export default function Cell({
     figure,
     variant,
     isAvailable,
+    isDanger,
     board,
   },
 }: Props): JSX.Element {
@@ -28,6 +30,16 @@ export default function Cell({
   const border = board.turn === 'white'
     ? whiteBorder
     : blackBorder;
+
+  let cellVariant: CellType = 'standard';
+
+  if (isDanger) {
+    cellVariant = 'danger';
+  }
+
+  if (isAvailable) {
+    cellVariant = 'available';
+  }
 
   function clickHandler() {
     board.clearMarks();
@@ -53,11 +65,10 @@ export default function Cell({
   });
 
   const isBorder = isActive ? border : '';
-  const isBright = isAvailable ? bright : '';
 
   return (
     <div
-      className={[variant, isBorder, isBright].join(' ')}
+      className={[variant, isBorder, cellType[cellVariant]].join(' ')}
       onClick={clickHandler}
       ref={ref}
     >

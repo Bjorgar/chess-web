@@ -38,11 +38,8 @@ export class Pawn extends Figure {
     const isFully = cell.figure;
 
     if (isFully && cell.figure?.side !== this.side) {
-      cell.isAvailable = true;
       this.isEnemyDetected = true;
-      if (this.isPreview) {
-        this.addPossibleCoords(cell);
-      }
+      this.addPossibleCoords(cell);
     }
   }
 
@@ -97,7 +94,7 @@ export class Pawn extends Figure {
         const nextCell = this.board.cells[nextYCoord][x];
 
         if (!nextCell.figure) {
-          nextCell.isAvailable = true;
+          this.addPossibleCoords(nextCell);
         } else {
           step = 0;
         }
@@ -109,8 +106,6 @@ export class Pawn extends Figure {
   }
 
   public recordNextPossibleCoords() {
-    this.isPreview = true;
-
     this.moveCoords.possibleMoves = [];
     this.setCells({ x: this.xCoord, y: this.yCoord });
 
@@ -119,12 +114,12 @@ export class Pawn extends Figure {
       : this.board.blackNextPossibleMoves;
 
     alliedPossibleMoves.push(this.moveCoords);
-
-    this.isPreview = false;
   }
 
   public showAvailableMoves() {
+    this.moveCoords.possibleMoves = [];
     this.setCells({ x: this.xCoord, y: this.yCoord });
+    this.checkAvailableMoves();
     this.board.refreshCells();
   }
 }

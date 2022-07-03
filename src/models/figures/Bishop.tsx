@@ -84,8 +84,6 @@ export class Bishop extends Figure {
   }
 
   public recordNextPossibleCoords() {
-    this.isPreview = true;
-
     this.moveCoords.possibleMoves = [];
     this.setCells(this.yCoord);
 
@@ -94,12 +92,12 @@ export class Bishop extends Figure {
       : this.board.blackNextPossibleMoves;
 
     alliedPossibleMoves.push(this.moveCoords);
-
-    this.isPreview = false;
   }
 
   public showAvailableMoves() {
+    this.moveCoords.possibleMoves = [];
     this.setCells(this.yCoord);
+    this.checkAvailableMoves();
     this.board.refreshCells();
   }
 }

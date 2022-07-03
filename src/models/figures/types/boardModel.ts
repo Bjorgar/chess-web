@@ -25,3 +25,5 @@ export interface DataForMove {
   figure: FigureCommon | null;
   isPreview?: boolean;
 }
+
+export type VirtualMoveData = Omit<DataForMove, 'isPreview'>;

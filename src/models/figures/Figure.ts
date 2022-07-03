@@ -19,8 +19,6 @@ export class Figure {
 
   side;
 
-  isPreview = false;
-
   moves = 0;
 
   minCoord = 0;
@@ -69,8 +67,10 @@ export class Figure {
     this.yCoord = y;
   }
 
-  public setCoords({ x, y }: Coords) {
-    this.moveCoords.figureCoords = { x, y };
+  public setCoords({ x, y }: Coords, isMovesRecordOnly?: boolean) {
+    if (!isMovesRecordOnly) {
+      this.moveCoords.figureCoords = { x, y };
+    }
     this.xCoord = x;
     this.yCoord = y;
   }
@@ -86,12 +86,34 @@ export class Figure {
     const isEmptyCell = !nextCell.figure;
 
     if (isEmptyCell || nextCell.figure?.side !== this.side) {
-      nextCell.isAvailable = true;
-      if (this.isPreview) {
-        this.addPossibleCoords(nextCell);
-      }
+      this.addPossibleCoords(nextCell);
     }
 
     return isEmptyCell;
+  }
+
+  public checkAvailableMoves() {
+    const moves = this.moveCoords.possibleMoves;
+    const figure = this.board.selectedFigure;
+    const figureCoords = this.board.selectedFigureCoords as Coords;
+
+    moves.forEach((move) => {
+      const y = +move.split('')[0];
+      const x = +move.split('')[1];
+
+      const currentCell = this.board.cells[y][x];
+
+      const isDanger = this.board.checkForPossibleCheck({
+        moveCoords: { x, y },
+        figureCoords,
+        figure,
+      });
+
+      if (isDanger) {
+        currentCell.isDanger = true;
+      } else {
+        currentCell.isAvailable = true;
+      }
+    });
   }
 }

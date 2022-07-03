@@ -20,6 +20,7 @@ import {
   Kings,
   MoveCoords,
   RecordData,
+  VirtualMoveData,
 } from './figures/types/boardModel';
 import { Coords } from './figures/types/common';
 import { FigureCommon } from './figures/types/figureModel';
@@ -83,6 +84,7 @@ export class BoardModel {
           isAvailable: false,
           figure: null,
           board: this,
+          isDanger: false,
         }));
       } else {
         this.cells.push(this.initBoard(i, child) as CellModel[]);
@@ -272,7 +274,8 @@ export class BoardModel {
       }
     }
 
-    figure?.setCoords({ x, y });
+    figure?.setCoords({ x, y }, isPreview);
+
     // Move
     this.cells[y][x].figure = figure;
     this.clearPrevCell(figureCoords);
@@ -343,8 +346,49 @@ export class BoardModel {
     }
   }
 
-  private checkForMate() {
+  private returnEnemyFigureBack = ({ x, y }: Coords) => {
+    this.cells[y][x].figure = this.savedEnemyFigure;
+    // Remove saved enemy figure
+    this.savedEnemyFigure = null;
+  };
+
+  public checkForPossibleCheck({
+    moveCoords,
+    figureCoords,
+    figure,
+  }: VirtualMoveData) {
     const isPreview = true;
+
+    this.captureAvailableCell({
+      moveCoords,
+      figureCoords,
+      figure,
+      isPreview,
+    });
+
+    this.recordNextPossibleMove();
+
+    const isCheck = this.checkForCheck(this.turn);
+
+    // Move back
+    this.captureAvailableCell({
+      moveCoords: figureCoords,
+      figureCoords: moveCoords,
+      figure,
+      isPreview,
+    });
+
+    // Reset possible moves after virtual figures moves
+    this.recordNextPossibleMove();
+
+    if (this.savedEnemyFigure) {
+      this.returnEnemyFigureBack(moveCoords);
+    }
+
+    return isCheck;
+  }
+
+  private checkForMate() {
     const alliedPossibleMoves = this.turn === 'white'
       ? this.whiteNextPossibleMoves
       : this.blackNextPossibleMoves;
@@ -358,46 +402,17 @@ export class BoardModel {
 
         const { figure } = this.cells[figureY][figureX];
 
-        const returnEnemyFigureBack = ({ x, y }: Coords) => {
-          this.cells[y][x].figure = this.savedEnemyFigure;
-        };
-
         return possibleMoves.every((move) => {
-          // Remove saved enemy figure
-          this.savedEnemyFigure = null;
-
           const y = +move.split('')[0];
           const x = +move.split('')[1];
 
-          this.captureAvailableCell({
+          return this.checkForPossibleCheck({
             moveCoords: { x, y },
-            figureCoords: { x: figureX, y: figureY },
+            figureCoords,
             figure,
-            isPreview,
           });
-
-          this.recordNextPossibleMove();
-
-          const isCheck = this.checkForCheck(this.turn);
-
-          // Move back
-          this.captureAvailableCell({
-            moveCoords: { x: figureX, y: figureY },
-            figureCoords: { x, y },
-            figure,
-            isPreview,
-          });
-
-          if (this.savedEnemyFigure) {
-            returnEnemyFigureBack({ x, y });
-          }
-
-          return isCheck;
         });
       });
-
-    // Reset possible moves after virtual figures moves
-    this.recordNextPossibleMove();
 
     if (isMate) {
       // TODO: Refactoring this case
@@ -467,6 +482,7 @@ export class BoardModel {
     this.cells.forEach((row) => {
       row.forEach((cell) => {
         cell.isAvailable = false;
+        cell.isDanger = false;
       });
     });
 

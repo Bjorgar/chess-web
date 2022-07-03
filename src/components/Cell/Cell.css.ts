@@ -21,6 +21,12 @@ export const variant = styleVariants({
   secondary: [cell, { backgroundColor: vars.color.light }],
 });
 
+export const cellType = styleVariants({
+  available: { backgroundColor: 'blue' },
+  danger: { backgroundColor: 'darkred' },
+  standard: {},
+});
+
 export const blackBorder = style([
   border,
   {
@@ -37,8 +43,4 @@ export const whiteBorder = style([
 
 export const figureImg = style({
   height: '90%',
-});
-
-export const bright = style({
-  backgroundColor: 'blue',
 });

@@ -120,8 +120,6 @@ export class Queen extends Figure {
   }
 
   public recordNextPossibleCoords() {
-    this.isPreview = true;
-
     this.moveCoords.possibleMoves = [];
     this.setCells({ x: this.xCoord, y: this.yCoord });
 
@@ -130,12 +128,12 @@ export class Queen extends Figure {
       : this.board.blackNextPossibleMoves;
 
     alliedPossibleMoves.push(this.moveCoords);
-
-    this.isPreview = false;
   }
 
   public showAvailableMoves() {
+    this.moveCoords.possibleMoves = [];
     this.setCells({ x: this.xCoord, y: this.yCoord });
+    this.checkAvailableMoves();
     this.board.refreshCells();
   }
 }
