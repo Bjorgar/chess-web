@@ -121,7 +121,16 @@ export class Queen extends Figure {
 
   public recordNextPossibleCoords() {
     this.isPreview = true;
+
+    this.moveCoords.possibleMoves = [];
     this.setCells({ x: this.xCoord, y: this.yCoord });
+
+    const alliedPossibleMoves = this.side === 'white'
+      ? this.board.whiteNextPossibleMoves
+      : this.board.blackNextPossibleMoves;
+
+    alliedPossibleMoves.push(this.moveCoords);
+
     this.isPreview = false;
   }
 

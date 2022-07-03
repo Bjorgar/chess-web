@@ -16,11 +16,12 @@ import { Pawn } from './figures/Pawn';
 import { Queen } from './figures/Queen';
 import { Rook } from './figures/Rook';
 import {
+  DataForMove,
   Kings,
-  PossibleMoves,
+  MoveCoords,
   RecordData,
 } from './figures/types/boardModel';
-import { Coords, FigureName } from './figures/types/common';
+import { Coords } from './figures/types/common';
 import { FigureCommon } from './figures/types/figureModel';
 
 export class BoardModel {
@@ -29,6 +30,8 @@ export class BoardModel {
   turn: FigureCommon['side'] = 'white';
 
   selectedFigure: FigureCommon | null = null;
+
+  savedEnemyFigure: FigureCommon | null = null;
 
   selectedFigureCoords: Coords | null = null;
 
@@ -40,9 +43,9 @@ export class BoardModel {
 
   whiteRecordedMoves: RecordData[] = [];
 
-  blackNextPossibleMoves: PossibleMoves = {};
+  blackNextPossibleMoves: MoveCoords[] = [];
 
-  whiteNextPossibleMoves: PossibleMoves = {};
+  whiteNextPossibleMoves: MoveCoords[] = [];
 
   kings: Kings = {} as Kings;
 
@@ -232,8 +235,7 @@ export class BoardModel {
     );
   }
 
-  private clearPrevCell() {
-    const { x, y } = this.selectedFigureCoords as Coords;
+  private clearPrevCell({ x, y }: Coords) {
     this.cells[y][x].figure = null;
   }
 
@@ -246,23 +248,34 @@ export class BoardModel {
     this.initRooks();
   }
 
-  private captureCurrentCell({ x, y }: Coords) {
+  private captureAvailableCell({
+    moveCoords: { x, y },
+    figureCoords,
+    figure,
+    isPreview,
+  }: DataForMove) {
     const enemy = this.cells[y][x].figure;
 
-    if (!!enemy) {
-      if (this.turn === 'white') {
-        this.whiteDestroyedFigures.push(enemy);
-      } else {
-        this.blackDestroyedFigures.push(enemy);
+    if (isPreview) {
+      if (!!enemy) {
+        this.savedEnemyFigure = enemy;
       }
-      this.recordMove({ x, y }, enemy.image);
     } else {
-      this.recordMove({ x, y });
+      this.recordMove({ x, y }, enemy?.image);
+
+      if (!!enemy) {
+        if (this.turn === 'white') {
+          this.whiteDestroyedFigures.push(enemy);
+        } else {
+          this.blackDestroyedFigures.push(enemy);
+        }
+      }
     }
 
-    // TODO: Add logic for сastling
-    this.selectedFigure?.setCoords({ x, y });
-    this.cells[y][x].figure = this.selectedFigure;
+    figure?.setCoords({ x, y });
+    // Move
+    this.cells[y][x].figure = figure;
+    this.clearPrevCell(figureCoords);
   }
 
   private clearFigureData() {
@@ -286,8 +299,8 @@ export class BoardModel {
 
   private recordMove({ x: currentX, y: currentY }: Coords, image?: string) {
     const { x: prevX, y: prevY } = this.selectedFigureCoords as Coords;
-    const prevCell = `${BOARD_NUMBERS[prevY]}${BOARD_LETTERS[prevX]}`;
-    const currentCell = `${BOARD_NUMBERS[currentY]}${BOARD_LETTERS[currentX]}`;
+    const prevCell = `${BOARD_LETTERS[prevX]}${BOARD_NUMBERS[prevY]}`;
+    const currentCell = `${BOARD_LETTERS[currentX]}${BOARD_NUMBERS[currentY]}`;
 
     if (this.turn === 'white') {
       this.whiteRecordedMoves.push({
@@ -310,8 +323,8 @@ export class BoardModel {
   private recordNextPossibleMove() {
     // Clean possible moves from
     // previous calculation
-    this.blackNextPossibleMoves = {};
-    this.whiteNextPossibleMoves = {};
+    this.blackNextPossibleMoves = [];
+    this.whiteNextPossibleMoves = [];
 
     const cellsWithFigures = this.cells
       .flat()
@@ -331,50 +344,59 @@ export class BoardModel {
   }
 
   private checkForMate() {
-    const kingFigure = this.kings[this.turn];
-    const alliedMoves = this.turn === 'white'
+    const isPreview = true;
+    const alliedPossibleMoves = this.turn === 'white'
       ? this.whiteNextPossibleMoves
       : this.blackNextPossibleMoves;
 
-    const currentX = this.kings[this.turn].xCoord;
-    const currentY = this.kings[this.turn].yCoord;
+    const isMate = alliedPossibleMoves
+      .every(({ figureCoords, possibleMoves }) => {
+        const {
+          x: figureX,
+          y: figureY,
+        } = figureCoords;
 
-    const kingsPossibleMoves = alliedMoves[FigureName.king];
+        const { figure } = this.cells[figureY][figureX];
 
-    const imitateMoves = ({ x, y }: Coords) => {
-      // remove king from his own position
-      this.cells[currentY][currentX].figure = null;
+        const returnEnemyFigureBack = ({ x, y }: Coords) => {
+          this.cells[y][x].figure = this.savedEnemyFigure;
+        };
 
-      // move king to position
-      this.cells[y][x].figure = kingFigure;
-      kingFigure?.setCoords({ x, y });
-    };
+        return possibleMoves.every((move) => {
+          // Remove saved enemy figure
+          this.savedEnemyFigure = null;
 
-    const moveBack = ({ x, y }: Coords) => {
-      // remove king from his prev position
-      this.cells[y][x].figure = null;
+          const y = +move.split('')[0];
+          const x = +move.split('')[1];
 
-      // move to own position
-      kingFigure?.setCoords({ x: currentX, y: currentY });
-      this.cells[currentY][currentX].figure = kingFigure;
-    };
+          this.captureAvailableCell({
+            moveCoords: { x, y },
+            figureCoords: { x: figureX, y: figureY },
+            figure,
+            isPreview,
+          });
 
-    // Imitation of king`s moves
-    const isMate = kingsPossibleMoves.every((possibleMove) => {
-      const y = +possibleMove.split('')[0];
-      const x = +possibleMove.split('')[1];
+          this.recordNextPossibleMove();
 
-      imitateMoves({ x, y });
+          const isCheck = this.checkForCheck(this.turn);
 
-      this.recordNextPossibleMove();
+          // Move back
+          this.captureAvailableCell({
+            moveCoords: { x: figureX, y: figureY },
+            figureCoords: { x, y },
+            figure,
+            isPreview,
+          });
 
-      const isCheck = this.checkForCheck(this.turn);
+          if (this.savedEnemyFigure) {
+            returnEnemyFigureBack({ x, y });
+          }
 
-      moveBack({ x, y });
+          return isCheck;
+        });
+      });
 
-      return isCheck;
-    });
-
+    // Reset possible moves after virtual figures moves
     this.recordNextPossibleMove();
 
     if (isMate) {
@@ -393,8 +415,8 @@ export class BoardModel {
     this.whiteDestroyedFigures = [];
     this.blackRecordedMoves = [];
     this.whiteRecordedMoves = [];
-    this.blackNextPossibleMoves = {};
-    this.whiteNextPossibleMoves = {};
+    this.blackNextPossibleMoves = [];
+    this.whiteNextPossibleMoves = [];
     this.kings = {} as Kings;
     this.setHistory({
       white: [],
@@ -410,7 +432,7 @@ export class BoardModel {
       ? this.blackNextPossibleMoves
       : this.whiteNextPossibleMoves;
 
-    return Object.values(enemiesCoords)
+    return enemiesCoords.map(({ possibleMoves }) => possibleMoves)
       .flat()
       .some((coord) => coord === stringCoords);
   }
@@ -427,8 +449,11 @@ export class BoardModel {
 
   public moveFigure(coords: Coords) {
     (this.selectedFigure as FigureCommon).moves++;
-    this.clearPrevCell();
-    this.captureCurrentCell(coords);
+    this.captureAvailableCell({
+      moveCoords: coords,
+      figureCoords: this.selectedFigureCoords as Coords,
+      figure: this.selectedFigure,
+    });
     this.recordNextPossibleMove();
 
     this.changeTurn();

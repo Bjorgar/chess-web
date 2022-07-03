@@ -1,6 +1,9 @@
 import { BoardModel } from '../BoardModel';
 import { CellModel } from '../CellModel';
-import { Coords, FigureName, Side } from './types/common';
+import { MoveCoords } from './types/boardModel';
+import {
+  Coords, FigureName, Side,
+} from './types/common';
 
 interface FigureData {
   side: Side;
@@ -11,7 +14,6 @@ interface FigureData {
   board: BoardModel;
   namePrefix?: string,
 }
-
 export class Figure {
   board;
 
@@ -28,6 +30,12 @@ export class Figure {
   yCoord = 0;
 
   xCoord = 0;
+
+  moveCoords: MoveCoords = {
+    name: '',
+    figureCoords: { x: 0, y: 0 },
+    possibleMoves: [],
+  };
 
   readonly name;
 
@@ -48,6 +56,9 @@ export class Figure {
     this.yCoord = coords.y;
     this.name = namePrefix ? `${namePrefix} ${name}` : name;
     this.image = side === 'black' ? blackFigure : whiteFigure;
+
+    this.moveCoords.figureCoords = coords;
+    this.moveCoords.name = this.name;
   }
 
   public setXCoord(x: number) {
@@ -59,6 +70,7 @@ export class Figure {
   }
 
   public setCoords({ x, y }: Coords) {
+    this.moveCoords.figureCoords = { x, y };
     this.xCoord = x;
     this.yCoord = y;
   }
@@ -66,15 +78,8 @@ export class Figure {
   public addPossibleCoords(nextCell: CellModel) {
     const nextY = nextCell.coords.y;
     const nextX = nextCell.coords.x;
-    const coordsTarget = this.side === 'white'
-      ? this.board.whiteNextPossibleMoves
-      : this.board.blackNextPossibleMoves;
 
-    if (coordsTarget[this.name]) {
-      coordsTarget[this.name].push(`${nextY}${nextX}`);
-    } else {
-      coordsTarget[this.name] = [`${nextY}${nextX}`];
-    }
+    this.moveCoords.possibleMoves.push(`${nextY}${nextX}`);
   }
 
   public checkNextCell(nextCell: CellModel) {

@@ -1,3 +1,4 @@
+import { Coords } from './common';
 import { FigureCommon } from './figureModel';
 
 export interface RecordData {
@@ -7,11 +8,20 @@ export interface RecordData {
   image?: string;
 }
 
-export interface PossibleMoves {
-  [key: string]: string[]
-}
-
 export interface Kings {
   white: FigureCommon;
   black: FigureCommon;
+}
+
+export interface MoveCoords {
+  name: string;
+  figureCoords: Coords;
+  possibleMoves: string[];
+}
+
+export interface DataForMove {
+  figureCoords: Coords;
+  moveCoords: Coords;
+  figure: FigureCommon | null;
+  isPreview?: boolean;
 }
