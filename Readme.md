@@ -6,4 +6,6 @@
 
 2. npm run dev
 
-3. game
+3. open at localhost:3000
+
+4. game
