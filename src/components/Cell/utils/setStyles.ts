@@ -32,22 +32,26 @@ export function setStyles({
 
   const borderStyle = isActive ? border : '';
 
-  let cellVariant: CellType = 'standard';
+  let cellVariant: CellType = CellType.standard;
 
   const cursorType = !!figure && figure.side === turn
     ? cellCursor.pointer
     : cellCursor.default;
 
   if (isDanger) {
-    cellVariant = 'danger';
+    cellVariant = CellType.danger;
   }
 
   if (isAvailable) {
-    cellVariant = 'available';
+    cellVariant = CellType.available;
   }
 
   if (isCastling) {
-    cellVariant = 'castling';
+    cellVariant = CellType.castling;
+  }
+
+  if (isAvailable && figure) {
+    cellVariant = CellType.attack;
   }
 
   return {

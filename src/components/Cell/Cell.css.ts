@@ -24,7 +24,7 @@ const available = style({
     width: '20px',
     height: '20px',
     borderRadius: '50%',
-    border: '1px solid white',
+    border: '2px solid white',
     backgroundColor: 'blue',
   },
 });
@@ -33,10 +33,12 @@ const danger = style({
   cursor: 'default',
   '::before': {
     content: '',
+    position: 'absolute',
+    zIndex: '10',
     width: '20px',
     height: '20px',
     borderRadius: '50%',
-    border: '1px solid white',
+    border: '2px solid white',
     backgroundColor: 'darkred',
   },
 });
@@ -48,8 +50,22 @@ const castling = style({
     width: '20px',
     height: '20px',
     borderRadius: '50%',
-    border: '1px solid white',
+    border: '2px solid white',
     backgroundColor: 'green',
+  },
+});
+
+const attack = style({
+  cursor: 'pointer',
+  '::before': {
+    content: '',
+    position: 'absolute',
+    zIndex: '10',
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    border: '2px solid red',
+    backgroundColor: 'blue',
   },
 });
 
@@ -57,6 +73,7 @@ export const cellType = styleVariants({
   available: [available],
   danger: [danger],
   castling: [castling],
+  attack: [attack],
   standard: {},
 });
 
