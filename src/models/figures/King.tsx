@@ -62,19 +62,19 @@ export class King extends Figure {
 
       if (
         name.includes('Right')
-          && !cells[y][4].figure
           && !cells[y][5].figure
           && !cells[y][6].figure
       ) {
-        kingsCastlingMoves.push({ y, x: 4 }, { y, x: 5 });
+        kingsCastlingMoves.push({ y, x: 5 }, { y, x: 6 });
       }
 
       if (
         name.includes('Left')
           && !cells[y][1].figure
           && !cells[y][2].figure
+          && !cells[y][3].figure
       ) {
-        kingsCastlingMoves.push({ y, x: 1 }, { y, x: 2 });
+        kingsCastlingMoves.push({ y, x: 2 }, { y, x: 3 });
       }
 
       if (!kingsCastlingMoves.length) return;
@@ -88,10 +88,10 @@ export class King extends Figure {
 
       if (!isDanger) {
         if (name.includes('Right')) {
-          cells[y][5].isCastling = true;
+          cells[y][6].isCastling = true;
         }
         if (name.includes('Left')) {
-          cells[y][1].isCastling = true;
+          cells[y][2].isCastling = true;
         }
       }
     };

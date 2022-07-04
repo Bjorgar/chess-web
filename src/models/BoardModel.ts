@@ -127,7 +127,7 @@ export class BoardModel {
   }
 
   private initKings() {
-    const x = 3;
+    const x = 4;
 
     this.cells[this.blackY][x].figure = new King(
       'black',
@@ -142,7 +142,7 @@ export class BoardModel {
   }
 
   private initQueens() {
-    const x = 4;
+    const x = 3;
 
     this.cells[this.blackY][x].figure = new Queen(
       'black',
@@ -447,19 +447,19 @@ export class BoardModel {
   private replaceRook({ x, y }: Coords) {
     let rook: FigureCommon;
 
-    if (x === 5) {
+    if (x === 6) {
       rook = this.cells[y][7].figure as FigureCommon;
       this.captureAvailableCell({
-        moveCoords: { x: 4, y },
+        moveCoords: { x: 5, y },
         figureCoords: { x: 7, y },
         figure: rook,
       });
     }
 
-    if (x === 1) {
+    if (x === 2) {
       rook = this.cells[y][0].figure as FigureCommon;
       this.captureAvailableCell({
-        moveCoords: { x: 2, y },
+        moveCoords: { x: 3, y },
         figureCoords: { x: 0, y },
         figure: rook,
       });
