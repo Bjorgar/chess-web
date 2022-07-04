@@ -103,7 +103,7 @@ export class Figure {
 
       const currentCell = this.board.cells[y][x];
 
-      const isDanger = this.board.checkForPossibleCheck({
+      const isDanger = this.board.checkForPossibleShah({
         moveCoords: { x, y },
         figureCoords,
         figure,

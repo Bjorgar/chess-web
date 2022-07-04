@@ -21,6 +21,7 @@ export default function Cell({
     figure,
     variant,
     isAvailable,
+    isCastling,
     isDanger,
     board,
   },
@@ -41,6 +42,10 @@ export default function Cell({
     cellVariant = 'available';
   }
 
+  if (isCastling) {
+    cellVariant = 'castling';
+  }
+
   function clickHandler() {
     board.clearMarks();
 
@@ -49,8 +54,8 @@ export default function Cell({
       board.setFigureData(figure, coords);
       figure.showAvailableMoves();
     }
-    if (isAvailable) {
-      board.moveFigure(coords);
+    if (isAvailable || isCastling) {
+      board.moveFigure(coords, isCastling);
     }
   }
 

@@ -26,4 +26,8 @@ export interface DataForMove {
   isPreview?: boolean;
 }
 
+export type RecordMoveData = Omit<DataForMove, 'isPreview' | 'figure'> & {
+  image?: string;
+}
+
 export type VirtualMoveData = Omit<DataForMove, 'isPreview'>;

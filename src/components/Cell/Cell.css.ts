@@ -24,6 +24,7 @@ export const variant = styleVariants({
 export const cellType = styleVariants({
   available: { backgroundColor: 'blue' },
   danger: { backgroundColor: 'darkred' },
+  castling: { backgroundColor: 'green' },
   standard: {},
 });
 

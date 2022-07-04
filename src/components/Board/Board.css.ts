@@ -44,3 +44,8 @@ export const mark = style({
   flexGrow: 1,
   textTransform: 'uppercase',
 });
+
+export const turn = style({
+  textAlign: 'center',
+  fontFamily: 'sans-serif',
+});

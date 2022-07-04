@@ -10,6 +10,7 @@ interface CellModelConstructor {
   colorVariant: string;
   isAvailable: boolean;
   isDanger: boolean;
+  isCastling: boolean;
   board: BoardModel;
 }
 
@@ -24,6 +25,8 @@ export class CellModel {
 
   isDanger;
 
+  isCastling;
+
   id;
 
   readonly variant;
@@ -35,6 +38,7 @@ export class CellModel {
     isAvailable,
     board,
     isDanger,
+    isCastling,
   }: CellModelConstructor) {
     this.variant = colorVariant;
     this.coords = coords;
@@ -42,6 +46,7 @@ export class CellModel {
     this.figure = figure;
     this.isAvailable = isAvailable;
     this.isDanger = isDanger;
+    this.isCastling = isCastling;
     this.board = board;
   }
 }

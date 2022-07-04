@@ -20,6 +20,7 @@ import {
   Kings,
   MoveCoords,
   RecordData,
+  RecordMoveData,
   VirtualMoveData,
 } from './figures/types/boardModel';
 import { Coords } from './figures/types/common';
@@ -44,15 +45,21 @@ export class BoardModel {
 
   whiteRecordedMoves: RecordData[] = [];
 
-  blackNextPossibleMoves: MoveCoords[] = [];
+  blackTeamFigures: MoveCoords[] = [];
 
-  whiteNextPossibleMoves: MoveCoords[] = [];
+  whiteTeamFigures: MoveCoords[] = [];
 
   kings: Kings = {} as Kings;
+
+  isShah = false;
 
   public setCells;
 
   private setHistory;
+
+  private setTurn;
+
+  private setNotification;
 
   private blackY = 0;
 
@@ -61,9 +68,13 @@ export class BoardModel {
   constructor(
     setCells: Dispatch<SetStateAction<CellModel[][] | undefined>>,
     setHistory: Dispatch<SetStateAction<MovesHistory | undefined>>,
+    setTurn: Dispatch<SetStateAction<FigureCommon['side']>>,
+    setNotification: Dispatch<SetStateAction<string>>,
   ) {
     this.setCells = setCells;
     this.setHistory = setHistory;
+    this.setTurn = setTurn;
+    this.setNotification = setNotification;
   }
 
   private initBoard(iteration?: number, isChild?: boolean): void | CellModel[] {
@@ -85,6 +96,7 @@ export class BoardModel {
           figure: null,
           board: this,
           isDanger: false,
+          isCastling: false,
         }));
       } else {
         this.cells.push(this.initBoard(i, child) as CellModel[]);
@@ -251,11 +263,12 @@ export class BoardModel {
   }
 
   private captureAvailableCell({
-    moveCoords: { x, y },
+    moveCoords,
     figureCoords,
     figure,
     isPreview,
   }: DataForMove) {
+    const { x, y } = moveCoords;
     const enemy = this.cells[y][x].figure;
 
     if (isPreview) {
@@ -263,7 +276,11 @@ export class BoardModel {
         this.savedEnemyFigure = enemy;
       }
     } else {
-      this.recordMove({ x, y }, enemy?.image);
+      this.recordMove({
+        moveCoords,
+        figureCoords,
+        image: enemy?.image,
+      });
 
       if (!!enemy) {
         if (this.turn === 'white') {
@@ -274,7 +291,7 @@ export class BoardModel {
       }
     }
 
-    figure?.setCoords({ x, y }, isPreview);
+    figure?.setCoords(moveCoords, isPreview);
 
     // Move
     this.cells[y][x].figure = figure;
@@ -298,10 +315,14 @@ export class BoardModel {
       black: this.blackRecordedMoves,
       white: this.whiteRecordedMoves,
     });
+    this.setTurn(this.turn);
   }
 
-  private recordMove({ x: currentX, y: currentY }: Coords, image?: string) {
-    const { x: prevX, y: prevY } = this.selectedFigureCoords as Coords;
+  private recordMove({
+    moveCoords: { x: currentX, y: currentY },
+    figureCoords: { x: prevX, y: prevY },
+    image,
+  }: RecordMoveData) {
     const prevCell = `${BOARD_LETTERS[prevX]}${BOARD_NUMBERS[prevY]}`;
     const currentCell = `${BOARD_LETTERS[currentX]}${BOARD_NUMBERS[currentY]}`;
 
@@ -326,8 +347,8 @@ export class BoardModel {
   private recordNextPossibleMove() {
     // Clean possible moves from
     // previous calculation
-    this.blackNextPossibleMoves = [];
-    this.whiteNextPossibleMoves = [];
+    this.blackTeamFigures = [];
+    this.whiteTeamFigures = [];
 
     const cellsWithFigures = this.cells
       .flat()
@@ -339,10 +360,17 @@ export class BoardModel {
   }
 
   private checkForCheckmate() {
-    const isCheck = this.checkForCheck(this.turn);
-    if (isCheck) {
-      alert('CHECK!');
-      this.checkForMate();
+    const isShah = this.checkForShah(this.turn);
+    if (isShah) {
+      this.isShah = true;
+      const isMate = this.checkForMate();
+
+      if (isMate) {
+        alert('Checkmate!');
+        this.reloadGame();
+      } else {
+        alert('Shah!');
+      }
     }
   }
 
@@ -352,7 +380,7 @@ export class BoardModel {
     this.savedEnemyFigure = null;
   };
 
-  public checkForPossibleCheck({
+  public checkForPossibleShah({
     moveCoords,
     figureCoords,
     figure,
@@ -368,7 +396,7 @@ export class BoardModel {
 
     this.recordNextPossibleMove();
 
-    const isCheck = this.checkForCheck(this.turn);
+    const isShah = this.checkForShah(this.turn);
 
     // Move back
     this.captureAvailableCell({
@@ -385,15 +413,15 @@ export class BoardModel {
       this.returnEnemyFigureBack(moveCoords);
     }
 
-    return isCheck;
+    return isShah;
   }
 
   private checkForMate() {
-    const alliedPossibleMoves = this.turn === 'white'
-      ? this.whiteNextPossibleMoves
-      : this.blackNextPossibleMoves;
+    const alliedTeam = this.turn === 'white'
+      ? this.whiteTeamFigures
+      : this.blackTeamFigures;
 
-    const isMate = alliedPossibleMoves
+    return alliedTeam
       .every(({ figureCoords, possibleMoves }) => {
         const {
           x: figureX,
@@ -406,18 +434,34 @@ export class BoardModel {
           const y = +move.split('')[0];
           const x = +move.split('')[1];
 
-          return this.checkForPossibleCheck({
+          return this.checkForPossibleShah({
             moveCoords: { x, y },
             figureCoords,
             figure,
           });
         });
       });
+  }
 
-    if (isMate) {
-      // TODO: Refactoring this case
-      alert('CHECKMATE!');
-      this.reloadGame();
+  private replaceRook({ x, y }: Coords) {
+    let rook: FigureCommon;
+
+    if (x === 5) {
+      rook = this.cells[y][7].figure as FigureCommon;
+      this.captureAvailableCell({
+        moveCoords: { x: 4, y },
+        figureCoords: { x: 7, y },
+        figure: rook,
+      });
+    }
+
+    if (x === 1) {
+      rook = this.cells[y][0].figure as FigureCommon;
+      this.captureAvailableCell({
+        moveCoords: { x: 2, y },
+        figureCoords: { x: 0, y },
+        figure: rook,
+      });
     }
   }
 
@@ -430,9 +474,11 @@ export class BoardModel {
     this.whiteDestroyedFigures = [];
     this.blackRecordedMoves = [];
     this.whiteRecordedMoves = [];
-    this.blackNextPossibleMoves = [];
-    this.whiteNextPossibleMoves = [];
+    this.blackTeamFigures = [];
+    this.whiteTeamFigures = [];
     this.kings = {} as Kings;
+    this.isShah = false;
+    this.setTurn('white');
     this.setHistory({
       white: [],
       black: [],
@@ -440,14 +486,14 @@ export class BoardModel {
     this.initGame();
   }
 
-  public checkForCheck(side: FigureCommon['side']) {
+  public checkForShah(side: FigureCommon['side']) {
     const stringCoords = `${this.kings[side].yCoord}${this.kings[side].xCoord}`;
 
-    const enemiesCoords = side === 'white'
-      ? this.blackNextPossibleMoves
-      : this.whiteNextPossibleMoves;
+    const enemiesTeam = side === 'white'
+      ? this.blackTeamFigures
+      : this.whiteTeamFigures;
 
-    return enemiesCoords.map(({ possibleMoves }) => possibleMoves)
+    return enemiesTeam.map(({ possibleMoves }) => possibleMoves)
       .flat()
       .some((coord) => coord === stringCoords);
   }
@@ -462,14 +508,20 @@ export class BoardModel {
     this.setCells(this.cells);
   }
 
-  public moveFigure(coords: Coords) {
+  public moveFigure(coords: Coords, isCastling: boolean) {
     (this.selectedFigure as FigureCommon).moves++;
+
+    if (isCastling) {
+      this.replaceRook(coords);
+    }
+
     this.captureAvailableCell({
       moveCoords: coords,
       figureCoords: this.selectedFigureCoords as Coords,
       figure: this.selectedFigure,
     });
     this.recordNextPossibleMove();
+    this.isShah = false;
 
     this.changeTurn();
     this.checkForCheckmate();
@@ -483,6 +535,7 @@ export class BoardModel {
       row.forEach((cell) => {
         cell.isAvailable = false;
         cell.isDanger = false;
+        cell.isCastling = false;
       });
     });
 

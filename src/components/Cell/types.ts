@@ -1,1 +1,1 @@
-export type CellType = 'danger' | 'available' | 'standard';
+export type CellType = 'danger' | 'available' | 'standard' | 'castling';

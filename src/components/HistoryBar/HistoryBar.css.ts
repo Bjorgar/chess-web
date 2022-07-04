@@ -33,6 +33,8 @@ export const list = style({
   textTransform: 'uppercase',
   margin: '0',
   padding: '0',
+  overflowY: 'auto',
+  height: '580px',
 });
 
 export const listItem = style({

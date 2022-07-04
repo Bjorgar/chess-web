@@ -109,11 +109,11 @@ export class Pawn extends Figure {
     this.moveCoords.possibleMoves = [];
     this.setCells({ x: this.xCoord, y: this.yCoord });
 
-    const alliedPossibleMoves = this.side === 'white'
-      ? this.board.whiteNextPossibleMoves
-      : this.board.blackNextPossibleMoves;
+    const alliedTeam = this.side === 'white'
+      ? this.board.whiteTeamFigures
+      : this.board.blackTeamFigures;
 
-    alliedPossibleMoves.push(this.moveCoords);
+    alliedTeam.push(this.moveCoords);
   }
 
   public showAvailableMoves() {

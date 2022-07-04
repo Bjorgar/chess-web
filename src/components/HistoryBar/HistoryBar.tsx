@@ -1,10 +1,10 @@
 import * as style from './HistoryBar.css';
 import { HistoryBarProps } from './types';
 
-export default function HistoryBar({ history }: HistoryBarProps) {
+export default function HistoryBar({ side, history }: HistoryBarProps) {
   return (
     <div className={style.historyWrapper}>
-      <h2 className={style.header}>History</h2>
+      <h2 className={style.header}>History {side}</h2>
       <div className={style.history}>
         {
           history && (
