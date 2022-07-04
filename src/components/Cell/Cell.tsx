@@ -4,12 +4,10 @@ import { useRef, useState } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CellModel } from '../../models/CellModel';
 import {
-  blackBorder,
   cellType,
   figureImg,
-  whiteBorder,
 } from './Cell.css';
-import { CellType } from './types';
+import { setStyles } from './utils/setStyles';
 
 interface Props {
   cell: CellModel;
@@ -28,23 +26,21 @@ export default function Cell({
 }: Props): JSX.Element {
   const [isActive, setActive] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const border = board.turn === 'white'
-    ? whiteBorder
-    : blackBorder;
 
-  let cellVariant: CellType = 'standard';
+  const { turn } = board;
 
-  if (isDanger) {
-    cellVariant = 'danger';
-  }
-
-  if (isAvailable) {
-    cellVariant = 'available';
-  }
-
-  if (isCastling) {
-    cellVariant = 'castling';
-  }
+  const {
+    borderStyle,
+    cellVariant,
+    cursorType,
+  } = setStyles({
+    figure,
+    isAvailable,
+    isCastling,
+    isDanger,
+    turn,
+    isActive,
+  });
 
   function clickHandler() {
     board.clearMarks();
@@ -69,11 +65,14 @@ export default function Cell({
     callback: inActivateCell,
   });
 
-  const isBorder = isActive ? border : '';
-
   return (
     <div
-      className={[variant, isBorder, cellType[cellVariant]].join(' ')}
+      className={[
+        cursorType,
+        variant,
+        borderStyle,
+        cellType[cellVariant],
+      ].join(' ')}
       onClick={clickHandler}
       ref={ref}
     >

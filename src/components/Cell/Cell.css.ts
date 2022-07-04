@@ -8,6 +8,7 @@ const border = style({
 });
 
 const cell = style({
+  position: 'relative',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -16,16 +17,57 @@ const cell = style({
   boxSizing: 'border-box',
 });
 
-export const variant = styleVariants({
-  primary: [cell, { backgroundColor: vars.color.dark }],
-  secondary: [cell, { backgroundColor: vars.color.light }],
+const available = style({
+  cursor: 'pointer',
+  '::before': {
+    content: '',
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    border: '1px solid white',
+    backgroundColor: 'blue',
+  },
+});
+
+const danger = style({
+  cursor: 'default',
+  '::before': {
+    content: '',
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    border: '1px solid white',
+    backgroundColor: 'darkred',
+  },
+});
+
+const castling = style({
+  cursor: 'pointer',
+  '::before': {
+    content: '',
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    border: '1px solid white',
+    backgroundColor: 'green',
+  },
 });
 
 export const cellType = styleVariants({
-  available: { backgroundColor: 'blue' },
-  danger: { backgroundColor: 'darkred' },
-  castling: { backgroundColor: 'green' },
+  available: [available],
+  danger: [danger],
+  castling: [castling],
   standard: {},
+});
+
+export const cellCursor = styleVariants({
+  pointer: { cursor: 'pointer' },
+  default: {},
+});
+
+export const variant = styleVariants({
+  primary: [cell, { backgroundColor: vars.color.dark }],
+  secondary: [cell, { backgroundColor: vars.color.light }],
 });
 
 export const blackBorder = style([

@@ -10,6 +10,7 @@ export default function HistoryBar({ side, history }: HistoryBarProps) {
           history && (
             <ul className={style.list}>
               {history.map(({
+                // Add showing images
                 date, currentCell, prevCell, image,
               }) => (
                 <li className={style.listItem}>

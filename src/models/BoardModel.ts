@@ -366,6 +366,7 @@ export class BoardModel {
       const isMate = this.checkForMate();
 
       if (isMate) {
+        // TODO: Add popup for this
         alert('Checkmate!');
         this.reloadGame();
       } else {
