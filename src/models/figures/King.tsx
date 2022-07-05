@@ -52,9 +52,7 @@ export class King extends Figure {
   }
 
   public checkForCastling() {
-    const team = this.board.turn === 'white'
-      ? this.board.whiteTeamFigures
-      : this.board.blackTeamFigures;
+    const team = this.board.teamFigures[this.board.turn];
 
     const checkForEmptyCells = (y: number, name: string) => {
       const { cells } = this.board;
@@ -114,9 +112,7 @@ export class King extends Figure {
     this.moveCoords.possibleMoves = [];
     this.setCells({ x: this.xCoord, y: this.yCoord });
 
-    const alliedTeam = this.side === 'white'
-      ? this.board.whiteTeamFigures
-      : this.board.blackTeamFigures;
+    const alliedTeam = this.board.teamFigures[this.side];
 
     alliedTeam.push(this.moveCoords);
   }

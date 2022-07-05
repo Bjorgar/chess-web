@@ -21,6 +21,7 @@ import {
   MoveCoords,
   RecordData,
   RecordMoveData,
+  TeamsFigures,
   VirtualMoveData,
 } from './figures/types/boardModel';
 import { Coords } from './figures/types/common';
@@ -45,13 +46,19 @@ export class BoardModel {
 
   whiteRecordedMoves: RecordData[] = [];
 
-  blackTeamFigures: MoveCoords[] = [];
-
-  whiteTeamFigures: MoveCoords[] = [];
+  teamFigures: TeamsFigures = {
+    white: [],
+    black: [],
+  };
 
   kings: Kings = {} as Kings;
 
   isShah = false;
+
+  availableMoves = {
+    white: true,
+    black: true,
+  };
 
   public setCells;
 
@@ -347,8 +354,8 @@ export class BoardModel {
   private recordNextPossibleMove() {
     // Clean possible moves from
     // previous calculation
-    this.blackTeamFigures = [];
-    this.whiteTeamFigures = [];
+    this.teamFigures.white = [];
+    this.teamFigures.black = [];
 
     const cellsWithFigures = this.cells
       .flat()
@@ -363,9 +370,9 @@ export class BoardModel {
     const isShah = this.checkForShah(this.turn);
     if (isShah) {
       this.isShah = true;
-      const isMate = this.checkForMate();
+      const isAllDanger = this.checkAllMovesForDanger();
 
-      if (isMate) {
+      if (isAllDanger) {
         // TODO: Add popup for this
         alert('Checkmate!');
         this.reloadGame();
@@ -417,10 +424,42 @@ export class BoardModel {
     return isShah;
   }
 
-  private checkForMate() {
-    const alliedTeam = this.turn === 'white'
-      ? this.whiteTeamFigures
-      : this.blackTeamFigures;
+  private checkForAvailableMoves() {
+    const alliedTeam = this.teamFigures[this.turn];
+
+    const isMoves = alliedTeam
+      .map(({ possibleMoves }) => possibleMoves)
+      .flat()
+      .length;
+
+    const isAvailableMoves = isMoves && !this.checkAllMovesForDanger();
+
+    if (!isAvailableMoves) {
+      this.availableMoves[this.turn] = false;
+
+      if (!this.availableMoves.white && !this.availableMoves.black) {
+        alert('PAT!');
+        this.reloadGame();
+        return;
+      }
+      this.changeTurn();
+      this.checkForAvailableMoves();
+    }
+
+    if (this.availableMoves.white && this.availableMoves.black) {
+      return;
+    }
+
+    const winner = this.turn === 'white'
+      ? 'white'
+      : 'black';
+
+    alert(`${winner} is winner. End moves in opponent`);
+    this.reloadGame();
+  }
+
+  private checkAllMovesForDanger() {
+    const alliedTeam = this.teamFigures[this.turn];
 
     return alliedTeam
       .every(({ figureCoords, possibleMoves }) => {
@@ -475,8 +514,8 @@ export class BoardModel {
     this.whiteDestroyedFigures = [];
     this.blackRecordedMoves = [];
     this.whiteRecordedMoves = [];
-    this.blackTeamFigures = [];
-    this.whiteTeamFigures = [];
+    this.teamFigures.white = [];
+    this.teamFigures.black = [];
     this.kings = {} as Kings;
     this.isShah = false;
     this.setTurn('white');
@@ -491,8 +530,8 @@ export class BoardModel {
     const stringCoords = `${this.kings[side].yCoord}${this.kings[side].xCoord}`;
 
     const enemiesTeam = side === 'white'
-      ? this.blackTeamFigures
-      : this.whiteTeamFigures;
+      ? this.teamFigures.black
+      : this.teamFigures.white;
 
     return enemiesTeam.map(({ possibleMoves }) => possibleMoves)
       .flat()
@@ -511,7 +550,7 @@ export class BoardModel {
 
   public moveFigure(coords: Coords, isCastling: boolean) {
     (this.selectedFigure as FigureCommon).moves++;
-
+    if (this.isShah) this.isShah = false;
     if (isCastling) {
       this.replaceRook(coords);
     }
@@ -522,9 +561,9 @@ export class BoardModel {
       figure: this.selectedFigure,
     });
     this.recordNextPossibleMove();
-    this.isShah = false;
 
     this.changeTurn();
+    this.checkForAvailableMoves();
     this.checkForCheckmate();
     this.clearFigureData();
     this.clearMarks();

@@ -92,9 +92,7 @@ export class Knight extends Figure {
     this.moveCoords.possibleMoves = [];
     this.setAvailableCoords({ x: this.xCoord, y: this.yCoord });
 
-    const alliedTeam = this.side === 'white'
-      ? this.board.whiteTeamFigures
-      : this.board.blackTeamFigures;
+    const alliedTeam = this.board.teamFigures[this.side];
 
     alliedTeam.push(this.moveCoords);
   }

@@ -31,3 +31,8 @@ export type RecordMoveData = Omit<DataForMove, 'isPreview' | 'figure'> & {
 }
 
 export type VirtualMoveData = Omit<DataForMove, 'isPreview'>;
+
+export interface TeamsFigures {
+  white: MoveCoords[];
+  black: MoveCoords[];
+}
