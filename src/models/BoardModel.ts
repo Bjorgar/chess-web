@@ -18,7 +18,6 @@ import { Rook } from './figures/Rook';
 import {
   DataForMove,
   Kings,
-  MoveCoords,
   RecordData,
   RecordMoveData,
   TeamsFigures,
@@ -54,11 +53,6 @@ export class BoardModel {
   kings: Kings = {} as Kings;
 
   isShah = false;
-
-  availableMoves = {
-    white: true,
-    black: true,
-  };
 
   public setCells;
 
@@ -435,27 +429,9 @@ export class BoardModel {
     const isAvailableMoves = isMoves && !this.checkAllMovesForDanger();
 
     if (!isAvailableMoves) {
-      this.availableMoves[this.turn] = false;
-
-      if (!this.availableMoves.white && !this.availableMoves.black) {
-        alert('PAT!');
-        this.reloadGame();
-        return;
-      }
-      this.changeTurn();
-      this.checkForAvailableMoves();
+      alert('PAT!');
+      this.reloadGame();
     }
-
-    if (this.availableMoves.white && this.availableMoves.black) {
-      return;
-    }
-
-    const winner = this.turn === 'white'
-      ? 'white'
-      : 'black';
-
-    alert(`${winner} is winner. End moves in opponent`);
-    this.reloadGame();
   }
 
   private checkAllMovesForDanger() {
