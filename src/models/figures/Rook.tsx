@@ -76,17 +76,14 @@ export class Rook extends Figure {
     this.setVerticalCells(y);
   }
 
-  public recordNextPossibleCoords() {
-    this.moveCoords.possibleMoves = [];
-    this.setCells({ x: this.xCoord, y: this.yCoord });
-
-    const alliedTeam = this.board.teamFigures[this.side];
-
-    alliedTeam.push(this.moveCoords);
+  public recordMoves() {
+    this.recordNextPossibleMoves(() => {
+      this.setCells({ x: this.xCoord, y: this.yCoord });
+    });
   }
 
   public showAvailableMoves() {
-    this.moveCoords.possibleMoves = [];
+    this.figureMoveData.possibleMoves = [];
     this.setCells({ x: this.xCoord, y: this.yCoord });
     this.checkAvailableMoves();
     this.board.refreshCells();

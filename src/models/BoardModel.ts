@@ -23,13 +23,13 @@ import {
   TeamsFigures,
   VirtualMoveData,
 } from './figures/types/boardModel';
-import { Coords } from './figures/types/common';
+import { Coords, Side } from './figures/types/common';
 import { FigureCommon } from './figures/types/figureModel';
 
 export class BoardModel {
   cells: CellModel[][] = [];
 
-  turn: FigureCommon['side'] = 'white';
+  turn: Side = 'white';
 
   selectedFigure: FigureCommon | null = null;
 
@@ -69,7 +69,7 @@ export class BoardModel {
   constructor(
     setCells: Dispatch<SetStateAction<CellModel[][] | undefined>>,
     setHistory: Dispatch<SetStateAction<MovesHistory | undefined>>,
-    setTurn: Dispatch<SetStateAction<FigureCommon['side']>>,
+    setTurn: Dispatch<SetStateAction<Side>>,
     setNotification: Dispatch<SetStateAction<string>>,
   ) {
     this.setCells = setCells;
@@ -356,7 +356,7 @@ export class BoardModel {
       .filter((cell) => cell.figure);
 
     cellsWithFigures.forEach(({ figure }) => {
-      figure?.recordNextPossibleCoords();
+      figure?.recordMoves();
     });
   }
 
@@ -378,7 +378,7 @@ export class BoardModel {
 
   private returnEnemyFigureBack = ({ x, y }: Coords) => {
     this.cells[y][x].figure = this.savedEnemyFigure;
-    // Remove saved enemy figure
+    // Clear saved enemy figure
     this.savedEnemyFigure = null;
   };
 
@@ -502,8 +502,8 @@ export class BoardModel {
     this.initGame();
   }
 
-  public checkForShah(side: FigureCommon['side']) {
-    const stringCoords = `${this.kings[side].yCoord}${this.kings[side].xCoord}`;
+  public checkForShah(side: Side) {
+    const kingCoords = `${this.kings[side].yCoord}${this.kings[side].xCoord}`;
 
     const enemiesTeam = side === 'white'
       ? this.teamFigures.black
@@ -511,7 +511,7 @@ export class BoardModel {
 
     return enemiesTeam.map(({ possibleMoves }) => possibleMoves)
       .flat()
-      .some((coord) => coord === stringCoords);
+      .some((coord) => coord === kingCoords);
   }
 
   public refreshCells() {
@@ -539,8 +539,8 @@ export class BoardModel {
     this.recordNextPossibleMove();
 
     this.changeTurn();
-    this.checkForAvailableMoves();
     this.checkForCheckmate();
+    this.checkForAvailableMoves();
     this.clearFigureData();
     this.clearMarks();
     this.refreshData();

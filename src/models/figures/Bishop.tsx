@@ -83,17 +83,12 @@ export class Bishop extends Figure {
     this.resetValues(y);
   }
 
-  public recordNextPossibleCoords() {
-    this.moveCoords.possibleMoves = [];
-    this.setCells(this.yCoord);
-
-    const alliedTeam = this.board.teamFigures[this.side];
-
-    alliedTeam.push(this.moveCoords);
+  public recordMoves() {
+    this.recordNextPossibleMoves(() => this.setCells(this.yCoord));
   }
 
   public showAvailableMoves() {
-    this.moveCoords.possibleMoves = [];
+    this.figureMoveData.possibleMoves = [];
     this.setCells(this.yCoord);
     this.checkAvailableMoves();
     this.board.refreshCells();

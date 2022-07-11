@@ -13,7 +13,7 @@ export interface Kings {
   black: FigureCommon;
 }
 
-export interface MoveCoords {
+export interface FigureMoveData {
   name: string;
   figureCoords: Coords;
   possibleMoves: string[];
@@ -33,6 +33,6 @@ export type RecordMoveData = Omit<DataForMove, 'isPreview' | 'figure'> & {
 export type VirtualMoveData = Omit<DataForMove, 'isPreview'>;
 
 export interface TeamsFigures {
-  white: MoveCoords[];
-  black: MoveCoords[];
+  white: FigureMoveData[];
+  black: FigureMoveData[];
 }

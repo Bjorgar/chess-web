@@ -29,22 +29,22 @@ export class Knight extends Figure {
     this.board = board;
   }
 
-  private setAvailableCells() {
+  private setAvailableCell() {
     const nextCell = this.board.cells[this.nextY][this.nextX];
     this.checkNextCell(nextCell);
   }
 
-  private setAvailableCoords({ x, y }: Coords) {
+  private setCells({ x, y }: Coords) {
     if (y - 2 >= this.minCoord) {
       if (x + 1 <= this.maxCoord) {
         this.nextY = y - 2;
         this.nextX = x + 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
       if (x - 1 >= this.minCoord) {
         this.nextY = y - 2;
         this.nextX = x - 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
     }
 
@@ -52,12 +52,12 @@ export class Knight extends Figure {
       if (x + 1 <= this.maxCoord) {
         this.nextY = y + 2;
         this.nextX = x + 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
       if (x - 1 >= this.minCoord) {
         this.nextY = y + 2;
         this.nextX = x - 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
     }
 
@@ -65,12 +65,12 @@ export class Knight extends Figure {
       if (y + 1 <= this.maxCoord) {
         this.nextX = x - 2;
         this.nextY = y + 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
       if (y - 1 >= this.minCoord) {
         this.nextX = x - 2;
         this.nextY = y - 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
     }
 
@@ -78,28 +78,25 @@ export class Knight extends Figure {
       if (y + 1 <= this.maxCoord) {
         this.nextX = x + 2;
         this.nextY = y + 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
       if (y - 1 >= this.minCoord) {
         this.nextX = x + 2;
         this.nextY = y - 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
     }
   }
 
-  public recordNextPossibleCoords() {
-    this.moveCoords.possibleMoves = [];
-    this.setAvailableCoords({ x: this.xCoord, y: this.yCoord });
-
-    const alliedTeam = this.board.teamFigures[this.side];
-
-    alliedTeam.push(this.moveCoords);
+  public recordMoves() {
+    this.recordNextPossibleMoves(() => {
+      this.setCells({ x: this.xCoord, y: this.yCoord });
+    });
   }
 
   public showAvailableMoves() {
-    this.moveCoords.possibleMoves = [];
-    this.setAvailableCoords({ x: this.xCoord, y: this.yCoord });
+    this.figureMoveData.possibleMoves = [];
+    this.setCells({ x: this.xCoord, y: this.yCoord });
     this.checkAvailableMoves();
     this.board.refreshCells();
   }
