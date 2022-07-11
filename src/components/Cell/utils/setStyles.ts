@@ -1,11 +1,11 @@
 import { Side } from '../../../models/figures/types/common';
-import { FigureCommon } from '../../../models/figures/types/figureModel';
+import { ChessFigure } from '../../../models/figures/types/figureModel';
 import { blackBorder, cellCursor, whiteBorder } from '../Cell.css';
 import { CellType } from '../types';
 
 interface SetStylesData {
   turn: Side;
-  figure: FigureCommon | null;
+  figure: ChessFigure | null;
   isDanger: boolean;
   isAvailable: boolean;
   isCastling: boolean;

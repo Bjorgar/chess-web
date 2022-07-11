@@ -1,15 +1,15 @@
 import kingBlack from '../../assets/king-black.png';
 import kingWhite from '../../assets/king-white.png';
-import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, FigureName, Side } from './types/common';
+import { Coords, FigureName } from './types/common';
+import { ChessFigureCommon, ChessFigureData } from './types/figureModel';
 
-export class King extends Figure {
-  constructor(
-    side: Side,
-    board: BoardModel,
-    coords: Coords,
-  ) {
+export class King extends Figure implements ChessFigureCommon {
+  constructor({
+    side,
+    coords,
+    board,
+  }: ChessFigureData) {
     super({
       side,
       blackFigure: kingBlack,
@@ -115,14 +115,11 @@ export class King extends Figure {
   }
 
   public showAvailableMoves() {
-    this.figureMoveData.possibleMoves = [];
-
-    if (!this.board.isShah) {
-      this.checkForCastling();
-    }
-
-    this.setCells({ x: this.xCoord, y: this.yCoord });
-    this.checkAvailableMoves();
-    this.board.refreshCells();
+    this.showAvailableCells(() => {
+      if (!this.board.isShah) {
+        this.checkForCastling();
+      }
+      this.setCells({ x: this.xCoord, y: this.yCoord });
+    });
   }
 }

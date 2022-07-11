@@ -1,20 +1,20 @@
 import knightBlack from '../../assets/knight-black.png';
 import knightWhite from '../../assets/knight-white.png';
-import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, FigureName, Side } from './types/common';
+import { Coords, FigureName } from './types/common';
+import { ChessFigureCommon, ChessFigureData } from './types/figureModel';
 
-export class Knight extends Figure {
+export class Knight extends Figure implements ChessFigureCommon {
   private nextX = 0;
 
   private nextY = 0;
 
-  constructor(
-    side: Side,
-    board: BoardModel,
-    coords: Coords,
-    namePrefix: string,
-  ) {
+  constructor({
+    side,
+    coords,
+    board,
+    namePrefix,
+  }: ChessFigureData) {
     super({
       side,
       blackFigure: knightBlack,
@@ -88,16 +88,15 @@ export class Knight extends Figure {
     }
   }
 
+  private setCellsHandler = () => {
+    this.setCells({ x: this.xCoord, y: this.yCoord });
+  };
+
   public recordMoves() {
-    this.recordNextPossibleMoves(() => {
-      this.setCells({ x: this.xCoord, y: this.yCoord });
-    });
+    this.recordNextPossibleMoves(this.setCellsHandler);
   }
 
   public showAvailableMoves() {
-    this.figureMoveData.possibleMoves = [];
-    this.setCells({ x: this.xCoord, y: this.yCoord });
-    this.checkAvailableMoves();
-    this.board.refreshCells();
+    this.showAvailableCells(this.setCellsHandler);
   }
 }

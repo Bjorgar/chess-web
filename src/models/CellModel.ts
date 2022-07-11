@@ -2,11 +2,11 @@ import { v4 as uuidV4 } from 'uuid';
 
 import { BoardModel } from './BoardModel';
 import { Coords } from './figures/types/common';
-import { FigureCommon } from './figures/types/figureModel';
+import { ChessFigure } from './figures/types/figureModel';
 
 interface CellModelConstructor {
   coords: Coords;
-  figure: FigureCommon | null;
+  figure: ChessFigure | null;
   colorVariant: string;
   isAvailable: boolean;
   isDanger: boolean;

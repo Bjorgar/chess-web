@@ -1,10 +1,10 @@
 import queenBlack from '../../assets/queen-black.png';
 import queenWhite from '../../assets/queen-white.png';
-import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, FigureName, Side } from './types/common';
+import { Coords, FigureName } from './types/common';
+import { ChessFigureCommon, ChessFigureData } from './types/figureModel';
 
-export class Queen extends Figure {
+export class Queen extends Figure implements ChessFigureCommon {
   private xLeftCoord = 0;
 
   private xRightCoord = 0;
@@ -19,11 +19,11 @@ export class Queen extends Figure {
 
   private isAvailableCalculation = true;
 
-  constructor(
-    side: Side,
-    board: BoardModel,
-    coords: Coords,
-  ) {
+  constructor({
+    side,
+    coords,
+    board,
+  }: ChessFigureData) {
     super({
       side,
       blackFigure: queenBlack,
@@ -119,16 +119,15 @@ export class Queen extends Figure {
     this.setHorizontalCells(x);
   }
 
+  private setCellsHandler = () => {
+    this.setCells({ x: this.xCoord, y: this.yCoord });
+  };
+
   public recordMoves() {
-    this.recordNextPossibleMoves(() => {
-      this.setCells({ x: this.xCoord, y: this.yCoord });
-    });
+    this.recordNextPossibleMoves(this.setCellsHandler);
   }
 
   public showAvailableMoves() {
-    this.figureMoveData.possibleMoves = [];
-    this.setCells({ x: this.xCoord, y: this.yCoord });
-    this.checkAvailableMoves();
-    this.board.refreshCells();
+    this.showAvailableCells(this.setCellsHandler);
   }
 }

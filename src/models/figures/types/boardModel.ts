@@ -1,5 +1,5 @@
 import { Coords } from './common';
-import { FigureCommon } from './figureModel';
+import { ChessFigure } from './figureModel';
 
 export interface RecordData {
   date: number;
@@ -9,8 +9,8 @@ export interface RecordData {
 }
 
 export interface Kings {
-  white: FigureCommon;
-  black: FigureCommon;
+  white: ChessFigure;
+  black: ChessFigure;
 }
 
 export interface FigureMoveData {
@@ -22,7 +22,7 @@ export interface FigureMoveData {
 export interface DataForMove {
   figureCoords: Coords;
   moveCoords: Coords;
-  figure: FigureCommon | null;
+  figure: ChessFigure | null;
   isPreview?: boolean;
 }
 

@@ -1,20 +1,20 @@
 import rookBlack from '../../assets/rook-black.png';
 import rookWhite from '../../assets/rook-white.png';
-import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, FigureName, Side } from './types/common';
+import { Coords, FigureName } from './types/common';
+import { ChessFigureCommon, ChessFigureData } from './types/figureModel';
 
-export class Rook extends Figure {
+export class Rook extends Figure implements ChessFigureCommon {
   private isAvailableHorizontal = true;
 
   private isAvailableVertical = true;
 
-  constructor(
-    side: Side,
-    board: BoardModel,
-    coords: Coords,
-    namePrefix: string,
-  ) {
+  constructor({
+    side,
+    coords,
+    board,
+    namePrefix,
+  }: ChessFigureData) {
     super({
       side,
       blackFigure: rookBlack,
@@ -76,16 +76,15 @@ export class Rook extends Figure {
     this.setVerticalCells(y);
   }
 
+  private setCellsHandler = () => {
+    this.setCells({ x: this.xCoord, y: this.yCoord });
+  };
+
   public recordMoves() {
-    this.recordNextPossibleMoves(() => {
-      this.setCells({ x: this.xCoord, y: this.yCoord });
-    });
+    this.recordNextPossibleMoves(this.setCellsHandler);
   }
 
   public showAvailableMoves() {
-    this.figureMoveData.possibleMoves = [];
-    this.setCells({ x: this.xCoord, y: this.yCoord });
-    this.checkAvailableMoves();
-    this.board.refreshCells();
+    this.showAvailableCells(this.setCellsHandler);
   }
 }

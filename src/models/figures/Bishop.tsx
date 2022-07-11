@@ -1,10 +1,10 @@
 import bishopBlack from '../../assets/bishop-black.png';
 import bishopWhite from '../../assets/bishop-white.png';
-import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, FigureName, Side } from './types/common';
+import { FigureName } from './types/common';
+import { ChessFigureCommon, ChessFigureData } from './types/figureModel';
 
-export class Bishop extends Figure {
+export class Bishop extends Figure implements ChessFigureCommon {
   private xLeftCoord = 0;
 
   private xRightCoord = 0;
@@ -15,12 +15,12 @@ export class Bishop extends Figure {
 
   private isAvailableCalculation = true;
 
-  constructor(
-    side: Side,
-    board: BoardModel,
-    coords: Coords,
-    namePrefix: string,
-  ) {
+  constructor({
+    side,
+    coords,
+    board,
+    namePrefix,
+  }: ChessFigureData) {
     super({
       side,
       blackFigure: bishopBlack,
@@ -83,14 +83,15 @@ export class Bishop extends Figure {
     this.resetValues(y);
   }
 
+  private setCellsHandler = () => {
+    this.setCells(this.yCoord);
+  };
+
   public recordMoves() {
-    this.recordNextPossibleMoves(() => this.setCells(this.yCoord));
+    this.recordNextPossibleMoves(this.setCellsHandler);
   }
 
   public showAvailableMoves() {
-    this.figureMoveData.possibleMoves = [];
-    this.setCells(this.yCoord);
-    this.checkAvailableMoves();
-    this.board.refreshCells();
+    this.showAvailableCells(this.setCellsHandler);
   }
 }

@@ -1,24 +1,22 @@
 import pawnBlack from '../../assets/pawn-black.png';
 import pawnWhite from '../../assets/pawn-white.png';
-import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, FigureName, Side } from './types/common';
+import { Coords, FigureName } from './types/common';
+import {
+  ChessFigureCommon,
+  ChessFigureData,
+  ManagerNextCoords,
+} from './types/figureModel';
 
-interface ManagerNextCoords {
-  nextLCoord: number;
-  nextRCoord: number;
-  nextYCoord: number;
-}
-
-export class Pawn extends Figure {
+export class Pawn extends Figure implements ChessFigureCommon {
   private isEnemyDetected = false;
 
-  constructor(
-    side: Side,
-    board: BoardModel,
-    coords: Coords,
-    namePrefix: string,
-  ) {
+  constructor({
+    side,
+    coords,
+    board,
+    namePrefix,
+  }: ChessFigureData) {
     super({
       side,
       blackFigure: pawnBlack,
@@ -105,16 +103,15 @@ export class Pawn extends Figure {
     this.isEnemyDetected = false;
   }
 
+  private setCellsHandler = () => {
+    this.setCells({ x: this.xCoord, y: this.yCoord });
+  };
+
   public recordMoves() {
-    this.recordNextPossibleMoves(() => {
-      this.setCells({ x: this.xCoord, y: this.yCoord });
-    });
+    this.recordNextPossibleMoves(this.setCellsHandler);
   }
 
   public showAvailableMoves() {
-    this.figureMoveData.possibleMoves = [];
-    this.setCells({ x: this.xCoord, y: this.yCoord });
-    this.checkAvailableMoves();
-    this.board.refreshCells();
+    this.showAvailableCells(this.setCellsHandler);
   }
 }

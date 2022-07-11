@@ -1,39 +1,8 @@
-import { BoardModel } from '../BoardModel';
 import { CellModel } from '../CellModel';
 import { FigureMoveData } from './types/boardModel';
-import {
-  Coords, FigureName, Side,
-} from './types/common';
+import { Coords } from './types/common';
+import { FigureData, IFigure } from './types/figureModel';
 
-interface FigureData {
-  side: Side;
-  name: FigureName;
-  blackFigure: string;
-  whiteFigure: string;
-  coords: Coords;
-  board: BoardModel;
-  namePrefix?: string,
-}
-
-interface IFigure {
-  board: BoardModel;
-  side: Side;
-  moves: number;
-  minCoord: number;
-  maxCoord: number;
-  yCoord: number;
-  xCoord: number;
-  figureMoveData: FigureMoveData;
-  name: string;
-  image: string;
-  setXCoord: (x: number) => void;
-  setYCoord: (y: number) => void;
-  setCoords: (coords: Coords, isMovesRecordOnly?: boolean) => void;
-  addPossibleCoords: (nextCell: CellModel) => void;
-  checkNextCell: (nextCell: CellModel) => boolean;
-  checkAvailableMoves: () => void;
-  recordNextPossibleMoves: (setCells: () => void) => void;
-}
 export class Figure implements IFigure {
   board;
 
@@ -143,5 +112,12 @@ export class Figure implements IFigure {
     const alliedTeam = this.board.teamFigures[this.side];
 
     alliedTeam.push(this.figureMoveData);
+  }
+
+  public showAvailableCells(setCells: () => void) {
+    this.figureMoveData.possibleMoves = [];
+    setCells();
+    this.checkAvailableMoves();
+    this.board.refreshCells();
   }
 }
