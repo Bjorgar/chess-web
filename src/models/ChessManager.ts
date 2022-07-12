@@ -11,7 +11,7 @@ import {
   DataForMove,
   IChessManager,
   Kings,
-  RecordData,
+  RecordedMoves,
   RecordMoveData,
   TeamsFigures,
   VirtualMoveData,
@@ -24,18 +24,6 @@ export class ChessManager implements IChessManager {
 
   selectedFigure: ChessFigure | null = null;
 
-  selectedFigureCoords: Coords | null = null;
-
-  savedEnemyFigure: ChessFigure | null = null;
-
-  blackDestroyedFigures: ChessFigure[] = [];
-
-  whiteDestroyedFigures: ChessFigure[] = [];
-
-  blackRecordedMoves: RecordData[] = [];
-
-  whiteRecordedMoves: RecordData[] = [];
-
   teamFigures: TeamsFigures = {
     white: [],
     black: [],
@@ -46,6 +34,21 @@ export class ChessManager implements IChessManager {
   isShah = false;
 
   board;
+
+  private recordedMoves: RecordedMoves = {
+    white: [],
+    black: [],
+  };
+
+  private selectedFigureCoords: Coords | null = null;
+
+  private savedEnemyFigure: ChessFigure | null = null;
+
+  private blackDestroyedFigures: ChessFigure[] = [];
+
+  private whiteDestroyedFigures: ChessFigure[] = [];
+
+  private isEndGame = false;
 
   private setCells;
 
@@ -120,10 +123,12 @@ export class ChessManager implements IChessManager {
   }
 
   private refreshData(): void {
+    const { white, black } = this.recordedMoves;
+
     this.refreshCells();
     this.setHistory({
-      black: this.blackRecordedMoves,
-      white: this.whiteRecordedMoves,
+      white,
+      black,
     });
     this.setTurn(this.turn);
   }
@@ -136,22 +141,12 @@ export class ChessManager implements IChessManager {
     const prevCell = `${BOARD_LETTERS[prevX]}${BOARD_NUMBERS[prevY]}`;
     const currentCell = `${BOARD_LETTERS[currentX]}${BOARD_NUMBERS[currentY]}`;
 
-    if (this.turn === 'white') {
-      this.whiteRecordedMoves.push({
-        prevCell,
-        currentCell,
-        date: Date.now(),
-        image,
-      });
-    }
-    if (this.turn === 'black') {
-      this.blackRecordedMoves.push({
-        prevCell,
-        currentCell,
-        date: Date.now(),
-        image,
-      });
-    }
+    this.recordedMoves[this.turn].push({
+      prevCell,
+      currentCell,
+      date: Date.now(),
+      image,
+    });
   }
 
   private recordNextPossibleMove(): void {
@@ -169,19 +164,22 @@ export class ChessManager implements IChessManager {
     });
   }
 
-  private checkForCheckmate(): void {
+  private checkForEndGame(): void {
     const isShah = this.checkForShah(this.turn);
+
     if (isShah) {
       this.isShah = true;
-      const isAllDanger = this.checkAllMovesForDanger();
+      const isMate = this.checkAllMovesForDanger();
 
-      if (isAllDanger) {
+      if (isMate) {
         // TODO: Add popup for this
         alert('Checkmate!');
-        this.reloadGame();
+        this.isEndGame = true;
       } else {
         alert('Shah!');
       }
+    } else {
+      this.checkForPat();
     }
   }
 
@@ -191,43 +189,7 @@ export class ChessManager implements IChessManager {
     this.savedEnemyFigure = null;
   }
 
-  public checkForPossibleShah({
-    moveCoords,
-    figureCoords,
-    figure,
-  }: VirtualMoveData): boolean {
-    const isPreview = true;
-
-    this.captureAvailableCell({
-      moveCoords,
-      figureCoords,
-      figure,
-      isPreview,
-    });
-
-    this.recordNextPossibleMove();
-
-    const isShah = this.checkForShah(this.turn);
-
-    // Move back
-    this.captureAvailableCell({
-      moveCoords: figureCoords,
-      figureCoords: moveCoords,
-      figure,
-      isPreview,
-    });
-
-    // Reset possible moves after virtual figures moves
-    this.recordNextPossibleMove();
-
-    if (this.savedEnemyFigure) {
-      this.returnEnemyFigureBack(moveCoords);
-    }
-
-    return isShah;
-  }
-
-  private checkForAvailableMoves(): void {
+  private checkForPat(): void {
     const alliedTeam = this.teamFigures[this.turn];
 
     const isMoves = alliedTeam
@@ -239,7 +201,7 @@ export class ChessManager implements IChessManager {
 
     if (!isAvailableMoves) {
       alert('PAT!');
-      this.reloadGame();
+      this.isEndGame = true;
     }
   }
 
@@ -291,14 +253,17 @@ export class ChessManager implements IChessManager {
   }
 
   private reloadGame(): void {
+    this.isEndGame = false;
     this.board.cells = [];
     this.turn = 'white';
     this.selectedFigure = null;
     this.selectedFigureCoords = null;
     this.blackDestroyedFigures = [];
     this.whiteDestroyedFigures = [];
-    this.blackRecordedMoves = [];
-    this.whiteRecordedMoves = [];
+    this.recordedMoves = {
+      white: [],
+      black: [],
+    };
     this.teamFigures.white = [];
     this.teamFigures.black = [];
     this.kings = {} as Kings;
@@ -311,7 +276,7 @@ export class ChessManager implements IChessManager {
     this.initGame();
   }
 
-  public checkForShah(side: Side): boolean {
+  private checkForShah(side: Side): boolean {
     const kingCoords = `${this.kings[side].yCoord}${this.kings[side].xCoord}`;
 
     const enemiesTeam = side === 'white'
@@ -321,6 +286,42 @@ export class ChessManager implements IChessManager {
     return enemiesTeam.map(({ possibleMoves }) => possibleMoves)
       .flat()
       .some((coord) => coord === kingCoords);
+  }
+
+  public checkForPossibleShah({
+    moveCoords,
+    figureCoords,
+    figure,
+  }: VirtualMoveData): boolean {
+    const isPreview = true;
+
+    this.captureAvailableCell({
+      moveCoords,
+      figureCoords,
+      figure,
+      isPreview,
+    });
+
+    this.recordNextPossibleMove();
+
+    const isShah = this.checkForShah(this.turn);
+
+    // Move back
+    this.captureAvailableCell({
+      moveCoords: figureCoords,
+      figureCoords: moveCoords,
+      figure,
+      isPreview,
+    });
+
+    // Reset possible moves after virtual figures moves
+    this.recordNextPossibleMove();
+
+    if (this.savedEnemyFigure) {
+      this.returnEnemyFigureBack(moveCoords);
+    }
+
+    return isShah;
   }
 
   public refreshCells(): void {
@@ -335,6 +336,7 @@ export class ChessManager implements IChessManager {
 
   public moveFigure(coords: Coords, isCastling: boolean): void {
     (this.selectedFigure as ChessFigure).moves++;
+
     if (this.isShah) this.isShah = false;
     if (isCastling) {
       this.replaceRook(coords);
@@ -348,8 +350,13 @@ export class ChessManager implements IChessManager {
     this.recordNextPossibleMove();
 
     this.changeTurn();
-    this.checkForCheckmate();
-    this.checkForAvailableMoves();
+    this.checkForEndGame();
+
+    if (this.isEndGame) {
+      this.reloadGame();
+      return;
+    }
+
     this.clearFigureData();
     this.clearMarks();
     this.refreshData();

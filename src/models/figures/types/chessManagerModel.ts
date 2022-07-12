@@ -9,6 +9,11 @@ export interface RecordData {
   image?: string;
 }
 
+export interface RecordedMoves {
+  white: RecordData[];
+  black: RecordData[];
+}
+
 export interface Kings {
   white: ChessFigure;
   black: ChessFigure;
@@ -35,18 +40,11 @@ export interface TeamsFigures {
 export interface IChessManager {
   turn: Side;
   selectedFigure: ChessFigure | null;
-  selectedFigureCoords: Coords | null;
-  savedEnemyFigure: ChessFigure | null;
-  blackDestroyedFigures: ChessFigure[];
-  whiteDestroyedFigures: ChessFigure[];
-  blackRecordedMoves: RecordData[];
-  whiteRecordedMoves: RecordData[];
   teamFigures: TeamsFigures;
   kings: Kings;
   isShah: boolean;
   board: ChessBoard;
   checkForPossibleShah: (data: VirtualMoveData) => boolean;
-  checkForShah: (data: Side) => boolean;
   moveFigure: (coords: Coords, isCastling: boolean) => void;
   clearMarks: () => void;
   setFigureData: (figure: ChessFigure, coords: Coords) => void;
