@@ -1,6 +1,11 @@
 import { CellModel } from '../CellModel';
 import { Coords } from './types/common';
-import { FigureData, FigureMoveData, IFigure } from './types/figureModel';
+import {
+  ChessFigure,
+  FigureData,
+  FigureMoveData,
+  IFigure,
+} from './types/figureModel';
 
 export class Figure implements IFigure {
   manager;
@@ -20,6 +25,7 @@ export class Figure implements IFigure {
   xCoord = 0;
 
   figureMoveData: FigureMoveData = {
+    figure: {} as ChessFigure,
     name: '',
     figureCoords: { x: 0, y: 0 },
     possibleMoves: [],
@@ -85,8 +91,7 @@ export class Figure implements IFigure {
   }
 
   public checkAvailableMoves() {
-    const { possibleMoves, figureCoords } = this.figureMoveData;
-    const figure = this.manager.selectedFigure;
+    const { possibleMoves, figureCoords, figure } = this.figureMoveData;
 
     possibleMoves.forEach((move) => {
       const y = +move.split('')[0];

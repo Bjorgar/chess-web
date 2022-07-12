@@ -22,14 +22,15 @@ import { ChessFigure } from './figures/types/figureModel';
 export class ChessManager implements IChessManager {
   turn: Side = 'white';
 
-  selectedFigure: ChessFigure | null = null;
-
   teamFigures: TeamsFigures = {
     white: [],
     black: [],
   };
 
-  kings: Kings = {} as Kings;
+  kings: Kings = {
+    white: {},
+    black: {},
+  } as Kings;
 
   isShah = false;
 
@@ -39,6 +40,8 @@ export class ChessManager implements IChessManager {
     white: [],
     black: [],
   };
+
+  private selectedFigure: ChessFigure | null = null;
 
   private selectedFigureCoords: Coords | null = null;
 
@@ -106,7 +109,7 @@ export class ChessManager implements IChessManager {
 
     figure?.setCoords(moveCoords, isPreview);
 
-    // Move
+    // Move figure
     this.board.cells[y][x].figure = figure;
     this.clearPrevCell(figureCoords);
   }
@@ -160,7 +163,7 @@ export class ChessManager implements IChessManager {
       .filter((cell) => cell.figure);
 
     cellsWithFigures.forEach(({ figure }) => {
-      figure?.recordMoves();
+      figure?.recordAvailableMoves();
     });
   }
 
@@ -209,15 +212,8 @@ export class ChessManager implements IChessManager {
     const alliedTeam = this.teamFigures[this.turn];
 
     return alliedTeam
-      .every(({ figureCoords, possibleMoves }) => {
-        const {
-          x: figureX,
-          y: figureY,
-        } = figureCoords;
-
-        const { figure } = this.board.cells[figureY][figureX];
-
-        return possibleMoves.every((move) => {
+      .every(({ figureCoords, possibleMoves, figure }) => possibleMoves
+        .every((move) => {
           const y = +move.split('')[0];
           const x = +move.split('')[1];
 
@@ -226,8 +222,7 @@ export class ChessManager implements IChessManager {
             figureCoords,
             figure,
           });
-        });
-      });
+        }));
   }
 
   private replaceRook({ x, y }: Coords): void {
@@ -264,9 +259,12 @@ export class ChessManager implements IChessManager {
       white: [],
       black: [],
     };
+    this.kings = {
+      white: {},
+      black: {},
+    } as Kings;
     this.teamFigures.white = [];
     this.teamFigures.black = [];
-    this.kings = {} as Kings;
     this.isShah = false;
     this.setTurn('white');
     this.setHistory({
@@ -277,7 +275,8 @@ export class ChessManager implements IChessManager {
   }
 
   private checkForShah(side: Side): boolean {
-    const kingCoords = `${this.kings[side].yCoord}${this.kings[side].xCoord}`;
+    const king = this.kings[side];
+    const kingCoords = `${king.yCoord}${king.xCoord}`;
 
     const enemiesTeam = side === 'white'
       ? this.teamFigures.black

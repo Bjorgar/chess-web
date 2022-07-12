@@ -34,9 +34,7 @@ export class Queen extends Figure implements ChessFigureCommon {
       whiteFigure: queenWhite,
       name: FigureName.queen,
     });
-
-    this.side = side;
-    this.manager = manager;
+    this.figureMoveData.figure = this;
   }
 
   private setDiagonalXCoords(x: number) {
@@ -125,7 +123,7 @@ export class Queen extends Figure implements ChessFigureCommon {
     this.setCells({ x: this.xCoord, y: this.yCoord });
   };
 
-  public recordMoves() {
+  public recordAvailableMoves() {
     this.recordNextPossibleMoves(this.setCellsHandler);
   }
 

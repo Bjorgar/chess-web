@@ -26,9 +26,7 @@ export class Rook extends Figure implements ChessFigureCommon {
       whiteFigure: rookWhite,
       name: FigureName.rook,
     });
-
-    this.side = side;
-    this.manager = manager;
+    this.figureMoveData.figure = this;
   }
 
   private resetHorizontal(x: number) {
@@ -82,7 +80,7 @@ export class Rook extends Figure implements ChessFigureCommon {
     this.setCells({ x: this.xCoord, y: this.yCoord });
   };
 
-  public recordMoves() {
+  public recordAvailableMoves() {
     this.recordNextPossibleMoves(this.setCellsHandler);
   }
 

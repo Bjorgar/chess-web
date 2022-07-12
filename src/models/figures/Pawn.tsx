@@ -28,9 +28,7 @@ export class Pawn extends Figure implements ChessFigureCommon {
       whiteFigure: pawnWhite,
       name: FigureName.pawn,
     });
-
-    this.side = side;
-    this.manager = manager;
+    this.figureMoveData.figure = this;
   }
 
   private checkCell({ x, y }: Coords) {
@@ -109,7 +107,7 @@ export class Pawn extends Figure implements ChessFigureCommon {
     this.setCells({ x: this.xCoord, y: this.yCoord });
   };
 
-  public recordMoves() {
+  public recordAvailableMoves() {
     this.recordNextPossibleMoves(this.setCellsHandler);
   }
 

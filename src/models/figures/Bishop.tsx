@@ -32,9 +32,7 @@ export class Bishop extends Figure implements ChessFigureCommon {
       whiteFigure: bishopWhite,
       name: FigureName.bishop,
     });
-
-    this.side = side;
-    this.manager = manager;
+    this.figureMoveData.figure = this;
   }
 
   private setDiagonalXCoords() {
@@ -89,7 +87,7 @@ export class Bishop extends Figure implements ChessFigureCommon {
     this.setCells(this.yCoord);
   };
 
-  public recordMoves() {
+  public recordAvailableMoves() {
     this.recordNextPossibleMoves(this.setCellsHandler);
   }
 

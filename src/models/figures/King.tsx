@@ -20,10 +20,8 @@ export class King extends Figure implements ChessFigureCommon {
       whiteFigure: kingWhite,
       name: FigureName.king,
     });
-
-    this.side = side;
-    this.manager = manager;
     this.manager.kings[side] = this;
+    this.figureMoveData.figure = this;
   }
 
   private setCells({ x, y }: Coords) {
@@ -110,7 +108,7 @@ export class King extends Figure implements ChessFigureCommon {
     }
   }
 
-  public recordMoves() {
+  public recordAvailableMoves() {
     this.recordNextPossibleMoves(() => {
       this.setCells({ x: this.xCoord, y: this.yCoord });
     });

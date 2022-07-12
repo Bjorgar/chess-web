@@ -26,9 +26,7 @@ export class Knight extends Figure implements ChessFigureCommon {
       whiteFigure: knightWhite,
       name: FigureName.knight,
     });
-
-    this.side = side;
-    this.manager = manager;
+    this.figureMoveData.figure = this;
   }
 
   private setAvailableCell() {
@@ -94,7 +92,7 @@ export class Knight extends Figure implements ChessFigureCommon {
     this.setCells({ x: this.xCoord, y: this.yCoord });
   };
 
-  public recordMoves() {
+  public recordAvailableMoves() {
     this.recordNextPossibleMoves(this.setCellsHandler);
   }
 

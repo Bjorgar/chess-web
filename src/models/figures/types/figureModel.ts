@@ -11,6 +11,8 @@ export interface ManagerNextCoords {
 }
 
 export interface FigureMoveData {
+  // eslint-disable-next-line no-use-before-define
+  figure: ChessFigure;
   name: string;
   figureCoords: Coords;
   possibleMoves: string[];
@@ -52,7 +54,7 @@ export interface FigureData extends ChessFigureData {
 }
 
 export interface ChessFigureCommon {
-  recordMoves: () => void;
+  recordAvailableMoves: () => void;
   showAvailableMoves: () => void;
 }
 

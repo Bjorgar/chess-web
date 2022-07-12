@@ -39,7 +39,6 @@ export interface TeamsFigures {
 
 export interface IChessManager {
   turn: Side;
-  selectedFigure: ChessFigure | null;
   teamFigures: TeamsFigures;
   kings: Kings;
   isShah: boolean;
