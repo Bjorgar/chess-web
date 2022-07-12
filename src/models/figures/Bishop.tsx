@@ -17,22 +17,24 @@ export class Bishop extends Figure implements ChessFigureCommon {
 
   constructor({
     side,
-    coords,
     board,
+    coords,
+    manager,
     namePrefix,
   }: ChessFigureData) {
     super({
       side,
+      board,
+      coords,
+      manager,
+      namePrefix,
       blackFigure: bishopBlack,
       whiteFigure: bishopWhite,
       name: FigureName.bishop,
-      coords,
-      board,
-      namePrefix,
     });
 
     this.side = side;
-    this.board = board;
+    this.manager = manager;
   }
 
   private setDiagonalXCoords() {

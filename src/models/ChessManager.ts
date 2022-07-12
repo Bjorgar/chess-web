@@ -3,39 +3,30 @@ import { Dispatch, SetStateAction } from 'react';
 import {
   BOARD_LETTERS,
   BOARD_NUMBERS,
-  FIELD_SIZE,
 } from '../components/Board/constants';
 import { MovesHistory } from '../components/Board/types';
-import { variant } from '../components/Cell/Cell.css';
-import { CellModel } from './CellModel';
-import { LEFT, PawnsOrder, RIGHT } from './constants';
-import { Bishop } from './figures/Bishop';
-import { King } from './figures/King';
-import { Knight } from './figures/Knight';
-import { Pawn } from './figures/Pawn';
-import { Queen } from './figures/Queen';
-import { Rook } from './figures/Rook';
+import { ChessBoard } from './ChessBoard';
+import { ICellModel } from './figures/types/cellModel';
 import {
   DataForMove,
+  IChessManager,
   Kings,
   RecordData,
   RecordMoveData,
   TeamsFigures,
   VirtualMoveData,
-} from './figures/types/boardModel';
+} from './figures/types/chessManagerModel';
 import { Coords, Side } from './figures/types/common';
 import { ChessFigure } from './figures/types/figureModel';
 
-export class BoardModel {
-  cells: CellModel[][] = [];
-
+export class ChessManager implements IChessManager {
   turn: Side = 'white';
 
   selectedFigure: ChessFigure | null = null;
 
-  savedEnemyFigure: ChessFigure | null = null;
-
   selectedFigureCoords: Coords | null = null;
+
+  savedEnemyFigure: ChessFigure | null = null;
 
   blackDestroyedFigures: ChessFigure[] = [];
 
@@ -54,7 +45,9 @@ export class BoardModel {
 
   isShah = false;
 
-  public setCells;
+  board;
+
+  private setCells;
 
   private setHistory;
 
@@ -62,12 +55,8 @@ export class BoardModel {
 
   private setNotification;
 
-  private blackY = 0;
-
-  private whiteY = 7;
-
   constructor(
-    setCells: Dispatch<SetStateAction<CellModel[][] | undefined>>,
+    setCells: Dispatch<SetStateAction<ICellModel[][] | undefined>>,
     setHistory: Dispatch<SetStateAction<MovesHistory | undefined>>,
     setTurn: Dispatch<SetStateAction<Side>>,
     setNotification: Dispatch<SetStateAction<string>>,
@@ -76,191 +65,11 @@ export class BoardModel {
     this.setHistory = setHistory;
     this.setTurn = setTurn;
     this.setNotification = setNotification;
+    this.board = new ChessBoard(this);
   }
 
-  private initBoard(iteration?: number, isChild?: boolean): void | CellModel[] {
-    const child = true;
-    const row: CellModel[] = [];
-
-    for (let i = 0; i < FIELD_SIZE; i++) {
-      if (isChild) {
-        const isRemnant = !!((iteration as number + i) % 2);
-        const variantType = isRemnant ? variant.primary : variant.secondary;
-
-        const x = i;
-        const y = iteration as number;
-
-        row.push(new CellModel({
-          coords: { x, y },
-          colorVariant: variantType,
-          isAvailable: false,
-          figure: null,
-          board: this,
-          isDanger: false,
-          isCastling: false,
-        }));
-      } else {
-        this.cells.push(this.initBoard(i, child) as CellModel[]);
-      }
-    }
-
-    if (isChild) return row;
-  }
-
-  private initPawns() {
-    for (let x = 0; x < FIELD_SIZE; x++) {
-      const blackY = 1;
-      const whiteY = 6;
-
-      this.cells[blackY][x].figure = new Pawn({
-        side: 'black',
-        board: this,
-        coords: { x, y: blackY },
-        namePrefix: PawnsOrder[x],
-      });
-      this.cells[whiteY][x].figure = new Pawn({
-        side: 'white',
-        board: this,
-        coords: { x, y: whiteY },
-        namePrefix: PawnsOrder[x],
-      });
-    }
-  }
-
-  private initKings() {
-    const x = 4;
-
-    this.cells[this.blackY][x].figure = new King({
-      side: 'black',
-      board: this,
-      coords: { x, y: this.blackY },
-    });
-    this.cells[this.whiteY][x].figure = new King({
-      side: 'white',
-      board: this,
-      coords: { x, y: this.whiteY },
-    });
-  }
-
-  private initQueens() {
-    const x = 3;
-
-    this.cells[this.blackY][x].figure = new Queen({
-      side: 'black',
-      board: this,
-      coords: { x, y: this.blackY },
-    });
-    this.cells[this.whiteY][x].figure = new Queen({
-      side: 'white',
-      board: this,
-      coords: { x, y: this.whiteY },
-    });
-  }
-
-  private initBishops() {
-    const rightX = 5;
-    const leftX = 2;
-
-    this.cells[this.blackY][leftX].figure = new Bishop({
-      side: 'black',
-      board: this,
-      coords: { x: leftX, y: this.blackY },
-      namePrefix: LEFT,
-    });
-    this.cells[this.blackY][rightX].figure = new Bishop({
-      side: 'black',
-      board: this,
-      coords: { x: rightX, y: this.blackY },
-      namePrefix: RIGHT,
-    });
-
-    this.cells[this.whiteY][leftX].figure = new Bishop({
-      side: 'white',
-      board: this,
-      coords: { x: leftX, y: this.whiteY },
-      namePrefix: LEFT,
-    });
-    this.cells[this.whiteY][rightX].figure = new Bishop({
-      side: 'white',
-      board: this,
-      coords: { x: rightX, y: this.whiteY },
-      namePrefix: RIGHT,
-    });
-  }
-
-  private initKnights() {
-    const rightX = 6;
-    const leftX = 1;
-
-    this.cells[this.blackY][leftX].figure = new Knight({
-      side: 'black',
-      board: this,
-      coords: { x: leftX, y: this.blackY },
-      namePrefix: LEFT,
-    });
-    this.cells[this.blackY][rightX].figure = new Knight({
-      side: 'black',
-      board: this,
-      coords: { x: rightX, y: this.blackY },
-      namePrefix: RIGHT,
-    });
-
-    this.cells[this.whiteY][leftX].figure = new Knight({
-      side: 'white',
-      board: this,
-      coords: { x: leftX, y: this.whiteY },
-      namePrefix: LEFT,
-    });
-    this.cells[this.whiteY][rightX].figure = new Knight({
-      side: 'white',
-      board: this,
-      coords: { x: rightX, y: this.whiteY },
-      namePrefix: RIGHT,
-    });
-  }
-
-  private initRooks() {
-    const rightX = 7;
-    const leftX = 0;
-
-    this.cells[this.blackY][leftX].figure = new Rook({
-      side: 'black',
-      board: this,
-      coords: { x: leftX, y: this.blackY },
-      namePrefix: LEFT,
-    });
-    this.cells[this.blackY][rightX].figure = new Rook({
-      side: 'black',
-      board: this,
-      coords: { x: rightX, y: this.blackY },
-      namePrefix: RIGHT,
-    });
-
-    this.cells[this.whiteY][leftX].figure = new Rook({
-      side: 'white',
-      board: this,
-      coords: { x: leftX, y: this.whiteY },
-      namePrefix: LEFT,
-    });
-    this.cells[this.whiteY][rightX].figure = new Rook({
-      side: 'white',
-      board: this,
-      coords: { x: rightX, y: this.whiteY },
-      namePrefix: RIGHT,
-    });
-  }
-
-  private clearPrevCell({ x, y }: Coords) {
-    this.cells[y][x].figure = null;
-  }
-
-  private initFigures() {
-    this.initPawns();
-    this.initKings();
-    this.initQueens();
-    this.initBishops();
-    this.initKnights();
-    this.initRooks();
+  private clearPrevCell({ x, y }: Coords): void {
+    this.board.cells[y][x].figure = null;
   }
 
   private captureAvailableCell({
@@ -268,9 +77,9 @@ export class BoardModel {
     figureCoords,
     figure,
     isPreview,
-  }: DataForMove) {
+  }: DataForMove): void {
     const { x, y } = moveCoords;
-    const enemy = this.cells[y][x].figure;
+    const enemy = this.board.cells[y][x].figure;
 
     if (isPreview) {
       if (!!enemy) {
@@ -295,22 +104,22 @@ export class BoardModel {
     figure?.setCoords(moveCoords, isPreview);
 
     // Move
-    this.cells[y][x].figure = figure;
+    this.board.cells[y][x].figure = figure;
     this.clearPrevCell(figureCoords);
   }
 
-  private clearFigureData() {
+  private clearFigureData(): void {
     this.selectedFigure = null;
     this.selectedFigureCoords = null;
   }
 
-  private changeTurn() {
+  private changeTurn(): void {
     this.turn = this.turn === 'white'
       ? 'black'
       : 'white';
   }
 
-  private refreshData() {
+  private refreshData(): void {
     this.refreshCells();
     this.setHistory({
       black: this.blackRecordedMoves,
@@ -323,7 +132,7 @@ export class BoardModel {
     moveCoords: { x: currentX, y: currentY },
     figureCoords: { x: prevX, y: prevY },
     image,
-  }: RecordMoveData) {
+  }: RecordMoveData): void {
     const prevCell = `${BOARD_LETTERS[prevX]}${BOARD_NUMBERS[prevY]}`;
     const currentCell = `${BOARD_LETTERS[currentX]}${BOARD_NUMBERS[currentY]}`;
 
@@ -345,13 +154,13 @@ export class BoardModel {
     }
   }
 
-  private recordNextPossibleMove() {
+  private recordNextPossibleMove(): void {
     // Clean possible moves from
     // previous calculation
     this.teamFigures.white = [];
     this.teamFigures.black = [];
 
-    const cellsWithFigures = this.cells
+    const cellsWithFigures = this.board.cells
       .flat()
       .filter((cell) => cell.figure);
 
@@ -360,7 +169,7 @@ export class BoardModel {
     });
   }
 
-  private checkForCheckmate() {
+  private checkForCheckmate(): void {
     const isShah = this.checkForShah(this.turn);
     if (isShah) {
       this.isShah = true;
@@ -376,17 +185,17 @@ export class BoardModel {
     }
   }
 
-  private returnEnemyFigureBack = ({ x, y }: Coords) => {
-    this.cells[y][x].figure = this.savedEnemyFigure;
+  private returnEnemyFigureBack({ x, y }: Coords): void {
+    this.board.cells[y][x].figure = this.savedEnemyFigure;
     // Clear saved enemy figure
     this.savedEnemyFigure = null;
-  };
+  }
 
   public checkForPossibleShah({
     moveCoords,
     figureCoords,
     figure,
-  }: VirtualMoveData) {
+  }: VirtualMoveData): boolean {
     const isPreview = true;
 
     this.captureAvailableCell({
@@ -418,7 +227,7 @@ export class BoardModel {
     return isShah;
   }
 
-  private checkForAvailableMoves() {
+  private checkForAvailableMoves(): void {
     const alliedTeam = this.teamFigures[this.turn];
 
     const isMoves = alliedTeam
@@ -434,7 +243,7 @@ export class BoardModel {
     }
   }
 
-  private checkAllMovesForDanger() {
+  private checkAllMovesForDanger(): boolean {
     const alliedTeam = this.teamFigures[this.turn];
 
     return alliedTeam
@@ -444,7 +253,7 @@ export class BoardModel {
           y: figureY,
         } = figureCoords;
 
-        const { figure } = this.cells[figureY][figureX];
+        const { figure } = this.board.cells[figureY][figureX];
 
         return possibleMoves.every((move) => {
           const y = +move.split('')[0];
@@ -459,11 +268,11 @@ export class BoardModel {
       });
   }
 
-  private replaceRook({ x, y }: Coords) {
+  private replaceRook({ x, y }: Coords): void {
     let rook: ChessFigure;
 
     if (x === 6) {
-      rook = this.cells[y][7].figure as ChessFigure;
+      rook = this.board.cells[y][7].figure as ChessFigure;
       this.captureAvailableCell({
         moveCoords: { x: 5, y },
         figureCoords: { x: 7, y },
@@ -472,7 +281,7 @@ export class BoardModel {
     }
 
     if (x === 2) {
-      rook = this.cells[y][0].figure as ChessFigure;
+      rook = this.board.cells[y][0].figure as ChessFigure;
       this.captureAvailableCell({
         moveCoords: { x: 3, y },
         figureCoords: { x: 0, y },
@@ -481,8 +290,8 @@ export class BoardModel {
     }
   }
 
-  private reloadGame() {
-    this.cells = [];
+  private reloadGame(): void {
+    this.board.cells = [];
     this.turn = 'white';
     this.selectedFigure = null;
     this.selectedFigureCoords = null;
@@ -502,7 +311,7 @@ export class BoardModel {
     this.initGame();
   }
 
-  public checkForShah(side: Side) {
+  public checkForShah(side: Side): boolean {
     const kingCoords = `${this.kings[side].yCoord}${this.kings[side].xCoord}`;
 
     const enemiesTeam = side === 'white'
@@ -514,17 +323,17 @@ export class BoardModel {
       .some((coord) => coord === kingCoords);
   }
 
-  public refreshCells() {
-    this.setCells([...this.cells]);
+  public refreshCells(): void {
+    this.setCells([...this.board.cells]);
   }
 
-  public initGame() {
-    this.initBoard();
-    this.initFigures();
-    this.setCells(this.cells);
+  public initGame(): void {
+    this.board.initBoard();
+    this.board.initFigures();
+    this.setCells(this.board.cells);
   }
 
-  public moveFigure(coords: Coords, isCastling: boolean) {
+  public moveFigure(coords: Coords, isCastling: boolean): void {
     (this.selectedFigure as ChessFigure).moves++;
     if (this.isShah) this.isShah = false;
     if (isCastling) {
@@ -546,8 +355,8 @@ export class BoardModel {
     this.refreshData();
   }
 
-  public clearMarks() {
-    this.cells.forEach((row) => {
+  public clearMarks(): void {
+    this.board.cells.forEach((row) => {
       row.forEach((cell) => {
         cell.isAvailable = false;
         cell.isDanger = false;
@@ -558,7 +367,7 @@ export class BoardModel {
     this.refreshCells();
   }
 
-  public setFigureData(figure: ChessFigure, coords: Coords) {
+  public setFigureData(figure: ChessFigure, coords: Coords): void {
     if (this.selectedFigure) {
       this.clearMarks();
     }

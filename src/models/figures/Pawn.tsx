@@ -13,22 +13,24 @@ export class Pawn extends Figure implements ChessFigureCommon {
 
   constructor({
     side,
-    coords,
     board,
+    coords,
+    manager,
     namePrefix,
   }: ChessFigureData) {
     super({
       side,
+      board,
+      coords,
+      manager,
+      namePrefix,
       blackFigure: pawnBlack,
       whiteFigure: pawnWhite,
       name: FigureName.pawn,
-      coords,
-      board,
-      namePrefix,
     });
 
     this.side = side;
-    this.board = board;
+    this.manager = manager;
   }
 
   private checkCell({ x, y }: Coords) {

@@ -11,22 +11,24 @@ export class Knight extends Figure implements ChessFigureCommon {
 
   constructor({
     side,
-    coords,
     board,
+    coords,
+    manager,
     namePrefix,
   }: ChessFigureData) {
     super({
       side,
+      board,
+      coords,
+      manager,
+      namePrefix,
       blackFigure: knightBlack,
       whiteFigure: knightWhite,
       name: FigureName.knight,
-      coords,
-      board,
-      namePrefix,
     });
 
     this.side = side;
-    this.board = board;
+    this.manager = manager;
   }
 
   private setAvailableCell() {

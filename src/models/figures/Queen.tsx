@@ -21,20 +21,22 @@ export class Queen extends Figure implements ChessFigureCommon {
 
   constructor({
     side,
-    coords,
     board,
+    coords,
+    manager,
   }: ChessFigureData) {
     super({
       side,
+      board,
+      coords,
+      manager,
       blackFigure: queenBlack,
       whiteFigure: queenWhite,
       name: FigureName.queen,
-      coords,
-      board,
     });
 
     this.side = side;
-    this.board = board;
+    this.manager = manager;
   }
 
   private setDiagonalXCoords(x: number) {

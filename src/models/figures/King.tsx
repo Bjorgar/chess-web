@@ -7,21 +7,23 @@ import { ChessFigureCommon, ChessFigureData } from './types/figureModel';
 export class King extends Figure implements ChessFigureCommon {
   constructor({
     side,
-    coords,
     board,
+    coords,
+    manager,
   }: ChessFigureData) {
     super({
       side,
+      board,
+      coords,
+      manager,
       blackFigure: kingBlack,
       whiteFigure: kingWhite,
       name: FigureName.king,
-      coords,
-      board,
     });
 
     this.side = side;
-    this.board = board;
-    this.board.kings[side] = this;
+    this.manager = manager;
+    this.manager.kings[side] = this;
   }
 
   private setCells({ x, y }: Coords) {
@@ -52,7 +54,7 @@ export class King extends Figure implements ChessFigureCommon {
   }
 
   public checkForCastling() {
-    const team = this.board.teamFigures[this.board.turn];
+    const team = this.manager.teamFigures[this.manager.turn];
 
     const checkForEmptyCells = (y: number, name: string) => {
       const { cells } = this.board;
@@ -78,7 +80,7 @@ export class King extends Figure implements ChessFigureCommon {
       if (!kingsCastlingMoves.length) return;
 
       const isDanger = kingsCastlingMoves
-        .some((move) => this.board.checkForPossibleShah({
+        .some((move) => this.manager.checkForPossibleShah({
           moveCoords: move,
           figureCoords: this.figureMoveData.figureCoords,
           figure: this,
@@ -116,7 +118,7 @@ export class King extends Figure implements ChessFigureCommon {
 
   public showAvailableMoves() {
     this.showAvailableCells(() => {
-      if (!this.board.isShah) {
+      if (!this.manager.isShah) {
         this.checkForCastling();
       }
       this.setCells({ x: this.xCoord, y: this.yCoord });

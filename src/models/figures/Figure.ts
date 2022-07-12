@@ -1,9 +1,10 @@
 import { CellModel } from '../CellModel';
-import { FigureMoveData } from './types/boardModel';
 import { Coords } from './types/common';
-import { FigureData, IFigure } from './types/figureModel';
+import { FigureData, FigureMoveData, IFigure } from './types/figureModel';
 
 export class Figure implements IFigure {
+  manager;
+
   board;
 
   side;
@@ -30,15 +31,17 @@ export class Figure implements IFigure {
 
   constructor({
     side,
+    name,
+    board,
+    coords,
+    manager,
+    namePrefix,
     blackFigure,
     whiteFigure,
-    name,
-    coords,
-    board,
-    namePrefix,
   }: FigureData) {
     this.side = side;
     this.board = board;
+    this.manager = manager;
     this.xCoord = coords.x;
     this.yCoord = coords.y;
     this.name = namePrefix ? `${namePrefix} ${name}` : name;
@@ -83,7 +86,7 @@ export class Figure implements IFigure {
 
   public checkAvailableMoves() {
     const { possibleMoves, figureCoords } = this.figureMoveData;
-    const figure = this.board.selectedFigure;
+    const figure = this.manager.selectedFigure;
 
     possibleMoves.forEach((move) => {
       const y = +move.split('')[0];
@@ -91,7 +94,7 @@ export class Figure implements IFigure {
 
       const currentCell = this.board.cells[y][x];
 
-      const isDanger = this.board.checkForPossibleShah({
+      const isDanger = this.manager.checkForPossibleShah({
         moveCoords: { x, y },
         figureCoords,
         figure,
@@ -109,7 +112,7 @@ export class Figure implements IFigure {
     this.figureMoveData.possibleMoves = [];
     setCells();
 
-    const alliedTeam = this.board.teamFigures[this.side];
+    const alliedTeam = this.manager.teamFigures[this.side];
 
     alliedTeam.push(this.figureMoveData);
   }
@@ -118,6 +121,6 @@ export class Figure implements IFigure {
     this.figureMoveData.possibleMoves = [];
     setCells();
     this.checkAvailableMoves();
-    this.board.refreshCells();
+    this.manager.refreshCells();
   }
 }

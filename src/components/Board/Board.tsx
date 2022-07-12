@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { BoardModel } from '../../models/BoardModel';
 import { CellModel } from '../../models/CellModel';
+import { ChessManager } from '../../models/ChessManager';
 import { Side } from '../../models/figures/types/common';
 import Cell from '../Cell/Cell';
 import HistoryBar from '../HistoryBar';
@@ -17,7 +17,7 @@ export default function Board() {
   const [notification, setNotification] = useState('');
 
   useEffect(() => {
-    const newBoard = new BoardModel(
+    const newBoard = new ChessManager(
       setCells,
       setHistory,
       setTurn,

@@ -11,22 +11,24 @@ export class Rook extends Figure implements ChessFigureCommon {
 
   constructor({
     side,
-    coords,
     board,
+    coords,
+    manager,
     namePrefix,
   }: ChessFigureData) {
     super({
       side,
+      board,
+      coords,
+      manager,
+      namePrefix,
       blackFigure: rookBlack,
       whiteFigure: rookWhite,
       name: FigureName.rook,
-      coords,
-      board,
-      namePrefix,
     });
 
     this.side = side;
-    this.board = board;
+    this.manager = manager;
   }
 
   private resetHorizontal(x: number) {

@@ -1,7 +1,6 @@
-import { BoardModel } from '../../BoardModel';
 import { CellModel } from '../../CellModel';
-import { Figure } from '../Figure';
-import { FigureMoveData } from './boardModel';
+import { IChessBoard } from './chessBoardModel';
+import { IChessManager } from './chessManagerModel';
 import { Coords, FigureName, Side } from './common';
 
 // For Pawn
@@ -11,8 +10,14 @@ export interface ManagerNextCoords {
   nextYCoord: number;
 }
 
+export interface FigureMoveData {
+  name: string;
+  figureCoords: Coords;
+  possibleMoves: string[];
+}
+
 export interface IFigure {
-  board: BoardModel;
+  manager: IChessManager;
   side: Side;
   moves: number;
   minCoord: number;
@@ -35,7 +40,8 @@ export interface IFigure {
 export interface ChessFigureData {
   side: Side;
   coords: Coords;
-  board: BoardModel;
+  manager: IChessManager;
+  board: IChessBoard;
   namePrefix?: string,
 }
 
@@ -50,4 +56,4 @@ export interface ChessFigureCommon {
   showAvailableMoves: () => void;
 }
 
-export type ChessFigure = Figure & ChessFigureCommon;
+export type ChessFigure = IFigure & ChessFigureCommon;
