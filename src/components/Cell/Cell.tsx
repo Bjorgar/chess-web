@@ -2,7 +2,7 @@
 import { useRef, useState } from 'react';
 
 import { useOutsideClick } from '../../hooks/useOutsideClick';
-import { CellModel } from '../../models/CellModel';
+import { ICellModel } from '../../models/figures/types/cellModel';
 import {
   cellType,
   figureImg,
@@ -10,7 +10,7 @@ import {
 import { setStyles } from './utils/setStyles';
 
 interface Props {
-  cell: CellModel;
+  cell: ICellModel;
 }
 
 export default function Cell({
@@ -21,13 +21,13 @@ export default function Cell({
     isAvailable,
     isCastling,
     isDanger,
-    board,
+    manager,
   },
 }: Props): JSX.Element {
   const [isActive, setActive] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const { turn } = board;
+  const { turn } = manager;
 
   const {
     borderStyle,
@@ -43,15 +43,15 @@ export default function Cell({
   });
 
   function clickHandler() {
-    board.clearMarks();
+    manager.clearMarks();
 
-    if (figure && figure.side === board.turn) {
+    if (figure && figure.side === manager.turn) {
       setActive(true);
-      board.setFigureData(figure, coords);
+      manager.setFigureData(figure, coords);
       figure.showAvailableMoves();
     }
     if (isAvailable || isCastling) {
-      board.moveFigure(coords, isCastling);
+      manager.moveFigure(coords, isCastling);
     }
   }
 

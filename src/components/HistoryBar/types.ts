@@ -1,7 +1,7 @@
-import { RecordData } from '../../models/figures/types/boardModel';
-import { FigureCommon } from '../../models/figures/types/figureModel';
+import { RecordData } from '../../models/figures/types/chessManagerModel';
+import { Side } from '../../models/figures/types/common';
 
 export interface HistoryBarProps {
-  side: FigureCommon['side'];
+  side: Side;
   history?: RecordData[];
 }

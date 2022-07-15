@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { BoardModel } from '../../models/BoardModel';
 import { CellModel } from '../../models/CellModel';
-import { FigureCommon } from '../../models/figures/types/figureModel';
+import { ChessManager } from '../../models/ChessManager';
+import { Side } from '../../models/figures/types/common';
 import Cell from '../Cell/Cell';
 import HistoryBar from '../HistoryBar';
 import Popup from '../Popup';
@@ -13,11 +13,11 @@ import { getLetters, getNumbers } from './utils';
 export default function Board() {
   const [cells, setCells] = useState<CellModel[][]>();
   const [history, setHistory] = useState<MovesHistory>();
-  const [turn, setTurn] = useState<FigureCommon['side']>('white');
+  const [turn, setTurn] = useState<Side>('white');
   const [notification, setNotification] = useState('');
 
   useEffect(() => {
-    const newBoard = new BoardModel(
+    const newBoard = new ChessManager(
       setCells,
       setHistory,
       setTurn,

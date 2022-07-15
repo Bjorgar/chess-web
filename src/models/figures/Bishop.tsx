@@ -1,10 +1,10 @@
 import bishopBlack from '../../assets/bishop-black.png';
 import bishopWhite from '../../assets/bishop-white.png';
-import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, FigureName, Side } from './types/common';
+import { FigureName } from './types/common';
+import { ChessFigureCommon, ChessFigureData } from './types/figureModel';
 
-export class Bishop extends Figure {
+export class Bishop extends Figure implements ChessFigureCommon {
   private xLeftCoord = 0;
 
   private xRightCoord = 0;
@@ -15,24 +15,24 @@ export class Bishop extends Figure {
 
   private isAvailableCalculation = true;
 
-  constructor(
-    side: Side,
-    board: BoardModel,
-    coords: Coords,
-    namePrefix: string,
-  ) {
+  constructor({
+    side,
+    board,
+    coords,
+    manager,
+    namePrefix,
+  }: ChessFigureData) {
     super({
       side,
+      board,
+      coords,
+      manager,
+      namePrefix,
       blackFigure: bishopBlack,
       whiteFigure: bishopWhite,
       name: FigureName.bishop,
-      coords,
-      board,
-      namePrefix,
     });
-
-    this.side = side;
-    this.board = board;
+    this.figureMoveData.figure = this;
   }
 
   private setDiagonalXCoords() {
@@ -83,19 +83,15 @@ export class Bishop extends Figure {
     this.resetValues(y);
   }
 
-  public recordNextPossibleCoords() {
-    this.moveCoords.possibleMoves = [];
+  private setCellsHandler = () => {
     this.setCells(this.yCoord);
+  };
 
-    const alliedTeam = this.board.teamFigures[this.side];
-
-    alliedTeam.push(this.moveCoords);
+  public recordAvailableMoves() {
+    this.recordNextPossibleMoves(this.setCellsHandler);
   }
 
   public showAvailableMoves() {
-    this.moveCoords.possibleMoves = [];
-    this.setCells(this.yCoord);
-    this.checkAvailableMoves();
-    this.board.refreshCells();
+    this.showAvailableCells(this.setCellsHandler);
   }
 }

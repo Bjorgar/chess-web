@@ -1,20 +1,15 @@
-import { BoardModel } from '../BoardModel';
 import { CellModel } from '../CellModel';
-import { MoveCoords } from './types/boardModel';
+import { Coords } from './types/common';
 import {
-  Coords, FigureName, Side,
-} from './types/common';
+  ChessFigure,
+  FigureData,
+  FigureMoveData,
+  IFigure,
+} from './types/figureModel';
 
-interface FigureData {
-  side: Side;
-  name: FigureName;
-  blackFigure: string;
-  whiteFigure: string;
-  coords: Coords;
-  board: BoardModel;
-  namePrefix?: string,
-}
-export class Figure {
+export class Figure implements IFigure {
+  manager;
+
   board;
 
   side;
@@ -29,7 +24,8 @@ export class Figure {
 
   xCoord = 0;
 
-  moveCoords: MoveCoords = {
+  figureMoveData: FigureMoveData = {
+    figure: {} as ChessFigure,
     name: '',
     figureCoords: { x: 0, y: 0 },
     possibleMoves: [],
@@ -41,22 +37,24 @@ export class Figure {
 
   constructor({
     side,
+    name,
+    board,
+    coords,
+    manager,
+    namePrefix,
     blackFigure,
     whiteFigure,
-    name,
-    coords,
-    board,
-    namePrefix,
   }: FigureData) {
     this.side = side;
     this.board = board;
+    this.manager = manager;
     this.xCoord = coords.x;
     this.yCoord = coords.y;
     this.name = namePrefix ? `${namePrefix} ${name}` : name;
     this.image = side === 'black' ? blackFigure : whiteFigure;
 
-    this.moveCoords.figureCoords = coords;
-    this.moveCoords.name = this.name;
+    this.figureMoveData.figureCoords = coords;
+    this.figureMoveData.name = this.name;
   }
 
   public setXCoord(x: number) {
@@ -69,7 +67,7 @@ export class Figure {
 
   public setCoords({ x, y }: Coords, isMovesRecordOnly?: boolean) {
     if (!isMovesRecordOnly) {
-      this.moveCoords.figureCoords = { x, y };
+      this.figureMoveData.figureCoords = { x, y };
     }
     this.xCoord = x;
     this.yCoord = y;
@@ -79,7 +77,7 @@ export class Figure {
     const nextY = nextCell.coords.y;
     const nextX = nextCell.coords.x;
 
-    this.moveCoords.possibleMoves.push(`${nextY}${nextX}`);
+    this.figureMoveData.possibleMoves.push(`${nextY}${nextX}`);
   }
 
   public checkNextCell(nextCell: CellModel) {
@@ -93,17 +91,15 @@ export class Figure {
   }
 
   public checkAvailableMoves() {
-    const moves = this.moveCoords.possibleMoves;
-    const figure = this.board.selectedFigure;
-    const figureCoords = this.board.selectedFigureCoords as Coords;
+    const { possibleMoves, figureCoords, figure } = this.figureMoveData;
 
-    moves.forEach((move) => {
+    possibleMoves.forEach((move) => {
       const y = +move.split('')[0];
       const x = +move.split('')[1];
 
       const currentCell = this.board.cells[y][x];
 
-      const isDanger = this.board.checkForPossibleShah({
+      const isDanger = this.manager.checkForPossibleShah({
         moveCoords: { x, y },
         figureCoords,
         figure,
@@ -115,5 +111,21 @@ export class Figure {
         currentCell.isAvailable = true;
       }
     });
+  }
+
+  public recordNextPossibleMoves(setCells: () => void) {
+    this.figureMoveData.possibleMoves = [];
+    setCells();
+
+    const alliedTeam = this.manager.teamFigures[this.side];
+
+    alliedTeam.push(this.figureMoveData);
+  }
+
+  public showAvailableCells(setCells: () => void) {
+    this.figureMoveData.possibleMoves = [];
+    setCells();
+    this.checkAvailableMoves();
+    this.manager.refreshCells();
   }
 }

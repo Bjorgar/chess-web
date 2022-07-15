@@ -1,23 +1,9 @@
 import { v4 as uuidV4 } from 'uuid';
 
-import { BoardModel } from './BoardModel';
-import { Coords } from './figures/types/common';
-import { FigureCommon } from './figures/types/figureModel';
+import { CellModelConstructor, ICellModel } from './figures/types/cellModel';
 
-interface CellModelConstructor {
-  coords: Coords;
-  figure: FigureCommon | null;
-  colorVariant: string;
-  isAvailable: boolean;
-  isDanger: boolean;
-  isCastling: boolean;
-  board: BoardModel;
-}
-
-export class CellModel {
-  coords;
-
-  board;
+export class CellModel implements ICellModel {
+  manager;
 
   figure;
 
@@ -31,12 +17,14 @@ export class CellModel {
 
   readonly variant;
 
+  readonly coords;
+
   constructor({
     coords,
     figure,
     colorVariant,
     isAvailable,
-    board,
+    manager,
     isDanger,
     isCastling,
   }: CellModelConstructor) {
@@ -47,6 +35,6 @@ export class CellModel {
     this.isAvailable = isAvailable;
     this.isDanger = isDanger;
     this.isCastling = isCastling;
-    this.board = board;
+    this.manager = manager;
   }
 }

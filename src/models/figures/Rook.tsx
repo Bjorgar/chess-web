@@ -1,32 +1,32 @@
 import rookBlack from '../../assets/rook-black.png';
 import rookWhite from '../../assets/rook-white.png';
-import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, FigureName, Side } from './types/common';
+import { Coords, FigureName } from './types/common';
+import { ChessFigureCommon, ChessFigureData } from './types/figureModel';
 
-export class Rook extends Figure {
+export class Rook extends Figure implements ChessFigureCommon {
   private isAvailableHorizontal = true;
 
   private isAvailableVertical = true;
 
-  constructor(
-    side: Side,
-    board: BoardModel,
-    coords: Coords,
-    namePrefix: string,
-  ) {
+  constructor({
+    side,
+    board,
+    coords,
+    manager,
+    namePrefix,
+  }: ChessFigureData) {
     super({
       side,
+      board,
+      coords,
+      manager,
+      namePrefix,
       blackFigure: rookBlack,
       whiteFigure: rookWhite,
       name: FigureName.rook,
-      coords,
-      board,
-      namePrefix,
     });
-
-    this.side = side;
-    this.board = board;
+    this.figureMoveData.figure = this;
   }
 
   private resetHorizontal(x: number) {
@@ -76,19 +76,15 @@ export class Rook extends Figure {
     this.setVerticalCells(y);
   }
 
-  public recordNextPossibleCoords() {
-    this.moveCoords.possibleMoves = [];
+  private setCellsHandler = () => {
     this.setCells({ x: this.xCoord, y: this.yCoord });
+  };
 
-    const alliedTeam = this.board.teamFigures[this.side];
-
-    alliedTeam.push(this.moveCoords);
+  public recordAvailableMoves() {
+    this.recordNextPossibleMoves(this.setCellsHandler);
   }
 
   public showAvailableMoves() {
-    this.moveCoords.possibleMoves = [];
-    this.setCells({ x: this.xCoord, y: this.yCoord });
-    this.checkAvailableMoves();
-    this.board.refreshCells();
+    this.showAvailableCells(this.setCellsHandler);
   }
 }

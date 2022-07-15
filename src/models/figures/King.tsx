@@ -1,27 +1,27 @@
 import kingBlack from '../../assets/king-black.png';
 import kingWhite from '../../assets/king-white.png';
-import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, FigureName, Side } from './types/common';
+import { Coords, FigureName } from './types/common';
+import { ChessFigureCommon, ChessFigureData } from './types/figureModel';
 
-export class King extends Figure {
-  constructor(
-    side: Side,
-    board: BoardModel,
-    coords: Coords,
-  ) {
+export class King extends Figure implements ChessFigureCommon {
+  constructor({
+    side,
+    board,
+    coords,
+    manager,
+  }: ChessFigureData) {
     super({
       side,
+      board,
+      coords,
+      manager,
       blackFigure: kingBlack,
       whiteFigure: kingWhite,
       name: FigureName.king,
-      coords,
-      board,
     });
-
-    this.side = side;
-    this.board = board;
-    this.board.kings[side] = this;
+    this.manager.kings[side] = this;
+    this.figureMoveData.figure = this;
   }
 
   private setCells({ x, y }: Coords) {
@@ -52,7 +52,7 @@ export class King extends Figure {
   }
 
   public checkForCastling() {
-    const team = this.board.teamFigures[this.board.turn];
+    const team = this.manager.teamFigures[this.manager.turn];
 
     const checkForEmptyCells = (y: number, name: string) => {
       const { cells } = this.board;
@@ -78,9 +78,9 @@ export class King extends Figure {
       if (!kingsCastlingMoves.length) return;
 
       const isDanger = kingsCastlingMoves
-        .some((move) => this.board.checkForPossibleShah({
+        .some((move) => this.manager.checkForPossibleShah({
           moveCoords: move,
-          figureCoords: this.moveCoords.figureCoords,
+          figureCoords: this.figureMoveData.figureCoords,
           figure: this,
         }));
 
@@ -108,24 +108,18 @@ export class King extends Figure {
     }
   }
 
-  public recordNextPossibleCoords() {
-    this.moveCoords.possibleMoves = [];
-    this.setCells({ x: this.xCoord, y: this.yCoord });
-
-    const alliedTeam = this.board.teamFigures[this.side];
-
-    alliedTeam.push(this.moveCoords);
+  public recordAvailableMoves() {
+    this.recordNextPossibleMoves(() => {
+      this.setCells({ x: this.xCoord, y: this.yCoord });
+    });
   }
 
   public showAvailableMoves() {
-    this.moveCoords.possibleMoves = [];
-
-    if (!this.board.isShah) {
-      this.checkForCastling();
-    }
-
-    this.setCells({ x: this.xCoord, y: this.yCoord });
-    this.checkAvailableMoves();
-    this.board.refreshCells();
+    this.showAvailableCells(() => {
+      if (!this.manager.isShah) {
+        this.checkForCastling();
+      }
+      this.setCells({ x: this.xCoord, y: this.yCoord });
+    });
   }
 }

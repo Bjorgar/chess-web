@@ -1,50 +1,50 @@
 import knightBlack from '../../assets/knight-black.png';
 import knightWhite from '../../assets/knight-white.png';
-import { BoardModel } from '../BoardModel';
 import { Figure } from './Figure';
-import { Coords, FigureName, Side } from './types/common';
+import { Coords, FigureName } from './types/common';
+import { ChessFigureCommon, ChessFigureData } from './types/figureModel';
 
-export class Knight extends Figure {
+export class Knight extends Figure implements ChessFigureCommon {
   private nextX = 0;
 
   private nextY = 0;
 
-  constructor(
-    side: Side,
-    board: BoardModel,
-    coords: Coords,
-    namePrefix: string,
-  ) {
+  constructor({
+    side,
+    board,
+    coords,
+    manager,
+    namePrefix,
+  }: ChessFigureData) {
     super({
       side,
+      board,
+      coords,
+      manager,
+      namePrefix,
       blackFigure: knightBlack,
       whiteFigure: knightWhite,
       name: FigureName.knight,
-      coords,
-      board,
-      namePrefix,
     });
-
-    this.side = side;
-    this.board = board;
+    this.figureMoveData.figure = this;
   }
 
-  private setAvailableCells() {
+  private setAvailableCell() {
     const nextCell = this.board.cells[this.nextY][this.nextX];
     this.checkNextCell(nextCell);
   }
 
-  private setAvailableCoords({ x, y }: Coords) {
+  private setCells({ x, y }: Coords) {
     if (y - 2 >= this.minCoord) {
       if (x + 1 <= this.maxCoord) {
         this.nextY = y - 2;
         this.nextX = x + 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
       if (x - 1 >= this.minCoord) {
         this.nextY = y - 2;
         this.nextX = x - 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
     }
 
@@ -52,12 +52,12 @@ export class Knight extends Figure {
       if (x + 1 <= this.maxCoord) {
         this.nextY = y + 2;
         this.nextX = x + 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
       if (x - 1 >= this.minCoord) {
         this.nextY = y + 2;
         this.nextX = x - 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
     }
 
@@ -65,12 +65,12 @@ export class Knight extends Figure {
       if (y + 1 <= this.maxCoord) {
         this.nextX = x - 2;
         this.nextY = y + 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
       if (y - 1 >= this.minCoord) {
         this.nextX = x - 2;
         this.nextY = y - 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
     }
 
@@ -78,29 +78,25 @@ export class Knight extends Figure {
       if (y + 1 <= this.maxCoord) {
         this.nextX = x + 2;
         this.nextY = y + 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
       if (y - 1 >= this.minCoord) {
         this.nextX = x + 2;
         this.nextY = y - 1;
-        this.setAvailableCells();
+        this.setAvailableCell();
       }
     }
   }
 
-  public recordNextPossibleCoords() {
-    this.moveCoords.possibleMoves = [];
-    this.setAvailableCoords({ x: this.xCoord, y: this.yCoord });
+  private setCellsHandler = () => {
+    this.setCells({ x: this.xCoord, y: this.yCoord });
+  };
 
-    const alliedTeam = this.board.teamFigures[this.side];
-
-    alliedTeam.push(this.moveCoords);
+  public recordAvailableMoves() {
+    this.recordNextPossibleMoves(this.setCellsHandler);
   }
 
   public showAvailableMoves() {
-    this.moveCoords.possibleMoves = [];
-    this.setAvailableCoords({ x: this.xCoord, y: this.yCoord });
-    this.checkAvailableMoves();
-    this.board.refreshCells();
+    this.showAvailableCells(this.setCellsHandler);
   }
 }
